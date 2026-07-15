@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>عرض القلب البشري 3D - تحكم خارجي</title>
+    <title>عرض القلب البشري 3D - تدوير المجسم</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
@@ -27,26 +26,22 @@
             color: #fff;
         }
 
-        /* ====== CANVAS FULLSCREEN ====== */
         #three-canvas {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: 1;
             cursor: grab;
+            touch-action: none;
         }
         #three-canvas:active { cursor: grabbing; }
 
-        /* ====== UI OVERLAY ====== */
         .ui-layer {
             position: fixed;
             z-index: 10;
             pointer-events: none;
         }
 
-        /* Top Bar */
         .top-bar {
             top: 0; left: 0; right: 0;
             padding: 15px 20px;
@@ -62,7 +57,6 @@
             color: #ff6b6b;
             text-shadow: 0 0 20px rgba(255,107,107,0.5);
         }
-
         .brand i { margin-left: 8px; }
 
         .info-badge {
@@ -75,7 +69,6 @@
             backdrop-filter: blur(10px);
         }
 
-        /* Bottom Controls Panel */
         .controls-panel {
             bottom: 0; left: 0; right: 0;
             padding: 20px;
@@ -86,7 +79,6 @@
             gap: 15px;
         }
 
-        /* فقط شريط التكبير + الأزرار */
         .controls-row {
             display: flex;
             gap: 20px;
@@ -173,13 +165,11 @@
             box-shadow: 0 0 15px rgba(255,107,107,0.3);
         }
 
-        /* Touch Controls (Mobile) */
         .touch-pad {
             position: fixed;
             bottom: 200px;
             right: 20px;
-            width: 140px;
-            height: 140px;
+            width: 140px; height: 140px;
             border-radius: 50%;
             background: rgba(255,255,255,0.05);
             border: 2px solid rgba(255,255,255,0.1);
@@ -208,7 +198,6 @@
             white-space: nowrap;
         }
 
-        /* Loading */
         .loading-screen {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -262,7 +251,6 @@
             font-size: 0.9rem;
         }
 
-        /* Pulse indicator */
         .pulse-indicator {
             position: fixed;
             top: 50%;
@@ -300,7 +288,6 @@
             text-orientation: mixed;
         }
 
-        /* Model info tooltip */
         .model-info {
             position: fixed;
             top: 80px;
@@ -330,7 +317,6 @@
             color: rgba(255,255,255,0.7);
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .brand { font-size: 1rem; }
             .controls-row { gap: 10px; }
@@ -348,17 +334,14 @@
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
         <div class="heart-loader"></div>
         <p class="loading-text">جاري تحميل نموذج القلب ثلاثي الأبعاد...</p>
         <p class="loading-progress" id="loadingProgress">0%</p>
     </div>
 
-    <!-- 3D Canvas -->
     <canvas id="three-canvas"></canvas>
 
-    <!-- Top Bar -->
     <div class="ui-layer top-bar">
         <div class="brand">
             <i class="bi bi-heart-pulse-fill"></i>
@@ -370,7 +353,6 @@
         </div>
     </div>
 
-    <!-- Model Info -->
     <div class="model-info" id="modelInfo">
         <h6><i class="bi bi-info-circle me-1"></i> معلومات النموذج</h6>
         <p id="modelName">-</p>
@@ -378,7 +360,6 @@
         <p id="modelMaterials">-</p>
     </div>
 
-    <!-- Pulse Indicator -->
     <div class="ui-layer pulse-indicator">
         <span class="pulse-label">نبض</span>
         <div class="pulse-bar">
@@ -386,16 +367,13 @@
         </div>
     </div>
 
-    <!-- Touch Pad (Mobile) -->
     <div class="touch-pad" id="touchPad">
         <div class="touch-knob" id="touchKnob"></div>
         <span class="touch-pad-label">تحكم باللمس</span>
     </div>
 
-    <!-- Bottom Controls -->
     <div class="ui-layer controls-panel">
         <div class="controls-row">
-            <!-- شريط التكبير فقط -->
             <div class="slider-group">
                 <label><i class="bi bi-zoom-in"></i> التكبير</label>
                 <input type="range" id="zoomSlider" min="1.5" max="25" value="6" step="0.1">
@@ -426,7 +404,6 @@
         </div>
     </div>
 
-    <!-- Three.js & GLTFLoader -->
     <script type="importmap">
     {
         "imports": {
@@ -439,7 +416,6 @@
     <script type="module">
         import * as THREE from 'three';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
         // ============================================
@@ -462,25 +438,11 @@
         renderer.toneMappingExposure = 1.0;
         renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-        // Environment for realistic reflections
         const pmremGenerator = new THREE.PMREMGenerator(renderer);
         scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
         // ============================================
-        // ORBIT CONTROLS (التحكم بالكاميرا من الخارج)
-        // ============================================
-        const controls = new OrbitControls(camera, canvas);
-        controls.target.set(0, 0, 0);
-        controls.enableDamping = true;          // حركة ناعمة
-        controls.dampingFactor = 0.08;
-        controls.minDistance = 1.5;             // أقرب مسافة (تكبير قوي)
-        controls.maxDistance = 25;              // أبعد مسافة (رؤية كاملة)
-        controls.rotateSpeed = 0.8;
-        controls.zoomSpeed = 1.0;
-        controls.update();
-
-        // ============================================
-        // LIGHTING (Cinematic Studio Setup)
+        // LIGHTING
         // ============================================
         const ambientLight = new THREE.AmbientLight(0xffcccc, 0.2);
         scene.add(ambientLight);
@@ -510,7 +472,7 @@
         scene.add(heartLight);
 
         // ============================================
-        // GROUND / ENVIRONMENT
+        // GROUND
         // ============================================
         const planeGeometry = new THREE.PlaneGeometry(50, 50);
         const planeMaterial = new THREE.MeshStandardMaterial({
@@ -542,16 +504,12 @@
             return new Promise((resolve, reject) => {
                 loader.load(
                     url,
-                    (gltf) => {
-                        resolve(gltf);
-                    },
+                    (gltf) => { resolve(gltf); },
                     (xhr) => {
                         const percent = Math.round((xhr.loaded / xhr.total) * 100);
                         loadingProgress.textContent = percent + '%';
                     },
-                    (error) => {
-                        reject(error);
-                    }
+                    (error) => { reject(error); }
                 );
             });
         }
@@ -562,7 +520,6 @@
                 heartModel = gltf.scene;
                 setupModel(heartModel);
 
-                // معلومات النموذج
                 document.getElementById('modelName').textContent = 'قلب بشري (GLB)';
                 let totalFaces = 0;
                 const materialsSet = new Set();
@@ -595,7 +552,7 @@
                 loadingProgress.textContent = 'فشل التحميل!';
                 loadingProgress.style.color = '#ff4444';
                 document.querySelector('.loading-text').textContent = 
-                    'تعذر تحميل نموذج القلب. تأكد من وجود الملف في: models/heart_3d_.glb';
+                    'تعذر تحميل نموذج القلب. تأكد من وجود الملف في: models/heart_3d_2.glb';
             }
         }
 
@@ -636,7 +593,7 @@
         }
 
         // ============================================
-        // PARTICLES (Blood cells atmosphere)
+        // PARTICLES
         // ============================================
         const particleCount = 300;
         const particleGeo = new THREE.BufferGeometry();
@@ -668,32 +625,113 @@
         scene.add(particles);
 
         // ============================================
-        // STATE & CONTROLS
+        // تدوير المجسم + تقريب/تبعيد (بدون OrbitControls)
         // ============================================
-        let autoRotate = false;
-        let pulseEnabled = true;
-        let wireframeMode = false;
-        let pulseTime = 0;
+        let targetRotation = { x: 0, y: 0, z: 0 };
+        let currentRotation = { x: 0, y: 0, z: 0 };
+        let cameraDistance = 6;
+        let isDragging = false;
+        let previousMouse = { x: 0, y: 0 };
 
         // شريط التكبير
         const zoomSlider = document.getElementById('zoomSlider');
         zoomSlider.addEventListener('input', (e) => {
-            const dist = parseFloat(e.target.value);
-            // ضبط مسافة الكاميرا مع الحفاظ على اتجاهها الحالي
-            const direction = camera.position.clone().normalize();
-            camera.position.copy(direction.multiplyScalar(dist));
-            controls.update();
+            cameraDistance = parseFloat(e.target.value);
         });
 
-        // تحديث شريط التكبير عند تغيير المسافة يدوياً
         function updateZoomSlider() {
-            const dist = camera.position.length();
-            zoomSlider.value = Math.min(Math.max(dist, 1.5), 25);
+            zoomSlider.value = Math.min(Math.max(cameraDistance, 1.5), 25);
         }
+
+        // ─── Mouse: تدوير المجسم ───
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            previousMouse = { x: e.clientX, y: e.clientY };
+            canvas.style.cursor = 'grabbing';
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.clientX - previousMouse.x;
+            const deltaY = e.clientY - previousMouse.y;
+
+            // تدوير المجسم نفسه (وليس الكاميرا)
+            targetRotation.y += deltaX * 0.01;
+            targetRotation.x += deltaY * 0.01;
+
+            previousMouse = { x: e.clientX, y: e.clientY };
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDragging = false;
+            canvas.style.cursor = 'grab';
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isDragging = false;
+            canvas.style.cursor = 'grab';
+        });
+
+        // ─── Scroll Wheel: تقريب/تبعيد ───
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY * 0.01;
+            cameraDistance += delta;
+            cameraDistance = Math.max(1.5, Math.min(25, cameraDistance));
+            updateZoomSlider();
+        }, { passive: false });
+
+        // ─── Touch: تدوير + Pinch Zoom ───
+        let touchStartDist = 0;
+        let touchStartZoom = 6;
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            } else if (e.touches.length === 2) {
+                isDragging = false;
+                touchStartDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                touchStartZoom = cameraDistance;
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (e.touches.length === 1 && isDragging) {
+                const deltaX = e.touches[0].clientX - previousMouse.x;
+                const deltaY = e.touches[0].clientY - previousMouse.y;
+
+                targetRotation.y += deltaX * 0.015;
+                targetRotation.x += deltaY * 0.015;
+
+                previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            } else if (e.touches.length === 2) {
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const scale = touchStartDist / dist;
+                cameraDistance = touchStartZoom * scale;
+                cameraDistance = Math.max(1.5, Math.min(25, cameraDistance));
+                updateZoomSlider();
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', () => {
+            isDragging = false;
+        });
 
         // ============================================
         // BUTTON ACTIONS
         // ============================================
+        let autoRotate = false;
+        let pulseEnabled = true;
+        let wireframeMode = false;
+
         window.toggleAutoRotate = function() {
             autoRotate = !autoRotate;
             document.getElementById('btnAutoRotate').classList.toggle('active');
@@ -710,6 +748,7 @@
         window.toggleWireframe = function() {
             wireframeMode = !wireframeMode;
             document.getElementById('btnWireframe').classList.toggle('active');
+            if (!heartModel) return;
             heartModel.traverse((child) => {
                 if (child.isMesh && child.material) {
                     if (Array.isArray(child.material)) {
@@ -739,12 +778,9 @@
         };
 
         window.resetView = function() {
-            // إعادة تعيين الكاميرا إلى موضعها الابتدائي (0, 0, 6)
-            camera.position.set(0, 0, 6);
-            controls.target.set(0, 0, 0);
-            controls.update();
+            targetRotation = { x: 0, y: 0, z: 0 };
+            cameraDistance = 6;
             zoomSlider.value = 6;
-
             autoRotate = false;
             explodeMode = false;
             document.getElementById('btnAutoRotate').classList.remove('active');
@@ -762,20 +798,32 @@
         // ============================================
         // ANIMATION LOOP
         // ============================================
+        let pulseTime = 0;
+
         function animate() {
             requestAnimationFrame(animate);
 
             const time = Date.now() * 0.001;
 
-            // دوران تلقائي (تدوير الكاميرا حول القلب)
-            if (autoRotate) {
-                const radius = camera.position.length();
-                const angle = Math.atan2(camera.position.x, camera.position.z) + 0.005;
-                camera.position.x = radius * Math.sin(angle);
-                camera.position.z = radius * Math.cos(angle);
-                controls.update();
-                updateZoomSlider();
+            // تدوير ناعم للمجسم
+            currentRotation.x += (targetRotation.x - currentRotation.x) * 0.08;
+            currentRotation.y += (targetRotation.y - currentRotation.y) * 0.08;
+            currentRotation.z += (targetRotation.z - currentRotation.z) * 0.08;
+
+            if (heartModel) {
+                heartModel.rotation.x = currentRotation.x;
+                heartModel.rotation.y = currentRotation.y;
+                heartModel.rotation.z = currentRotation.z;
             }
+
+            // دوران تلقائي للمجسم (وليس الكاميرا)
+            if (autoRotate) {
+                targetRotation.y += 0.005;
+            }
+
+            // تقريب/تبعيد ناعم للكاميرا
+            const targetZ = cameraDistance;
+            camera.position.z += (targetZ - camera.position.z) * 0.1;
 
             // نبض القلب
             if (pulseEnabled && heartModel && !explodeMode) {
@@ -788,12 +836,10 @@
                 heartLight.intensity = 1.0 + Math.sin(pulseTime) * 0.4;
             }
 
-            // تحديث شريط التكبير بناءً على مسافة الكاميرا (بعد أي تغيير من الفأرة)
-            if (!autoRotate) {
-                updateZoomSlider();
-            }
+            // تحديث شريط التكبير
+            updateZoomSlider();
 
-            // جسيمات عائمة
+            // جسيمات
             const positions = particles.geometry.attributes.position.array;
             for (let i = 0; i < particleCount; i++) {
                 positions[i * 3 + 1] += Math.sin(time * 0.5 + i) * 0.001;
@@ -802,7 +848,6 @@
             particles.geometry.attributes.position.needsUpdate = true;
             particles.rotation.y += 0.0005;
 
-            controls.update();
             renderer.render(scene, camera);
         }
 
@@ -821,7 +866,6 @@
         initModel();
         animate();
 
-        // Detect mobile
         function isMobile() {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
