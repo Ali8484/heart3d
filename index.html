@@ -104,7 +104,7 @@
         }
 
         .slider-group input[type="range"] {
-            width: 120px;
+            width: 150px;
             -webkit-appearance: none;
             appearance: none;
             height: 4px;
@@ -320,7 +320,7 @@
         @media (max-width: 768px) {
             .brand { font-size: 1rem; }
             .controls-row { gap: 10px; }
-            .slider-group input[type="range"] { width: 80px; }
+            .slider-group input[type="range"] { width: 100px; }
             .touch-pad { display: flex; }
             .pulse-indicator { left: 10px; }
             .pulse-bar { height: 60px; }
@@ -329,7 +329,7 @@
         @media (max-width: 576px) {
             .controls-panel { padding: 10px; }
             .btn-action { padding: 8px 14px; font-size: 0.8rem; }
-            .slider-group input[type="range"] { width: 60px; }
+            .slider-group input[type="range"] { width: 80px; }
         }
     </style>
 </head>
@@ -376,7 +376,7 @@
         <div class="controls-row">
             <div class="slider-group">
                 <label><i class="bi bi-zoom-in"></i> التكبير</label>
-                <input type="range" id="zoomSlider" min="1.5" max="25" value="6" step="0.1">
+                <input type="range" id="zoomSlider" min="5" max="50" value="15" step="0.1">
             </div>
         </div>
 
@@ -427,7 +427,10 @@
         scene.fog = new THREE.FogExp2(0x0a0a1a, 0.015);
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 16);
+        // ═══════════════════════════════════════════════════
+        // تبعيد الكاميرا لتناسب المجسم الصغير
+        // ═══════════════════════════════════════════════════
+        camera.position.set(0, 0, 15);
 
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -552,7 +555,7 @@
                 loadingProgress.textContent = 'فشل التحميل!';
                 loadingProgress.style.color = '#ff4444';
                 document.querySelector('.loading-text').textContent = 
-                    'تعذر تحميل نموذج القلب. تأكد من وجود الملف في: models/heart_3d_2.glb';
+                    'تعذر تحميل نموذج القلب. تأكد من وجود الملف في: models/heart_3d_3.glb';
             }
         }
 
@@ -576,7 +579,10 @@
             const center = box.getCenter(new THREE.Vector3());
             model.position.sub(center);
 
-            const desiredSize = 0.5;
+            // ═══════════════════════════════════════════════════
+            // تعديل حجم المجسم - غيّر هذه القيمة حسب الحاجة
+            // ═══════════════════════════════════════════════════
+            const desiredSize = 2.0;  // ← غيّر هذه القيمة: 0.5=صغير, 2.0=متوسط, 5.0=كبير
             const size = box.getSize(new THREE.Vector3());
             const maxDim = Math.max(size.x, size.y, size.z);
             const scale = desiredSize / maxDim;
@@ -625,11 +631,14 @@
         scene.add(particles);
 
         // ============================================
-        // تدوير المجسم + تقريب/تبعيد (بدون OrbitControls)
+        // تدوير المجسم + تقريب/تبعيد
         // ============================================
         let targetRotation = { x: 0, y: 0, z: 0 };
         let currentRotation = { x: 0, y: 0, z: 0 };
-        let cameraDistance = 6;
+        // ═══════════════════════════════════════════════════
+        // مسافة الكاميرا الابتدائية - تتوافق مع قيمة HTML
+        // ═══════════════════════════════════════════════════
+        let cameraDistance = 15;
         let isDragging = false;
         let previousMouse = { x: 0, y: 0 };
 
@@ -640,7 +649,7 @@
         });
 
         function updateZoomSlider() {
-            zoomSlider.value = Math.min(Math.max(cameraDistance, 1.5), 25);
+            zoomSlider.value = Math.min(Math.max(cameraDistance, 5), 50);
         }
 
         // ─── Mouse: تدوير المجسم ───
@@ -655,7 +664,6 @@
             const deltaX = e.clientX - previousMouse.x;
             const deltaY = e.clientY - previousMouse.y;
 
-            // تدوير المجسم نفسه (وليس الكاميرا)
             targetRotation.y += deltaX * 0.01;
             targetRotation.x += deltaY * 0.01;
 
@@ -675,15 +683,15 @@
         // ─── Scroll Wheel: تقريب/تبعيد ───
         canvas.addEventListener('wheel', (e) => {
             e.preventDefault();
-            const delta = e.deltaY * 0.01;
+            const delta = e.deltaY * 0.05;
             cameraDistance += delta;
-            cameraDistance = Math.max(1.5, Math.min(25, cameraDistance));
+            cameraDistance = Math.max(5, Math.min(50, cameraDistance));
             updateZoomSlider();
         }, { passive: false });
 
         // ─── Touch: تدوير + Pinch Zoom ───
         let touchStartDist = 0;
-        let touchStartZoom = 6;
+        let touchStartZoom = 15;
 
         canvas.addEventListener('touchstart', (e) => {
             if (e.touches.length === 1) {
@@ -716,7 +724,7 @@
                 );
                 const scale = touchStartDist / dist;
                 cameraDistance = touchStartZoom * scale;
-                cameraDistance = Math.max(1.5, Math.min(25, cameraDistance));
+                cameraDistance = Math.max(5, Math.min(50, cameraDistance));
                 updateZoomSlider();
             }
         }, { passive: false });
@@ -779,8 +787,11 @@
 
         window.resetView = function() {
             targetRotation = { x: 0, y: 0, z: 0 };
-            cameraDistance = 6;
-            zoomSlider.value = 6;
+            // ═══════════════════════════════════════════════════
+            // إعادة الكاميرا للمسافة الابتدائية
+            // ═══════════════════════════════════════════════════
+            cameraDistance = 15;
+            zoomSlider.value = 15;
             autoRotate = false;
             explodeMode = false;
             document.getElementById('btnAutoRotate').classList.remove('active');
@@ -816,7 +827,7 @@
                 heartModel.rotation.z = currentRotation.z;
             }
 
-            // دوران تلقائي للمجسم (وليس الكاميرا)
+            // دوران تلقائي للمجسم
             if (autoRotate) {
                 targetRotation.y += 0.005;
             }
