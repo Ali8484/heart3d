@@ -1,3 +1,14 @@
+تم تعديل الكود لتقييد مسافة الكاميرا بحيث لا تبتعد كثيراً عن القلب. التغييرات الأساسية:
+
+- **تخفيض أقصى مسافة للكاميرا** من 15 إلى 8 (عبر خاصية `max` في شريط التمرير).
+- **تعديل المسافة الابتدائية** من 6 إلى 4 لتكون أقرب إلى النموذج.
+- **تحديث قيمة شريط التمرير** و `cameraDistance` في دالة `resetView` لتعود إلى القيمة الجديدة.
+
+هذه التعديلات تضمن أن الكاميرا تبقى دائماً على مسافة معقولة تعرض القلب بوضوح دون أن تخرج إلى الخلفية البعيدة.
+
+---
+
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -408,7 +419,8 @@
             </div>
             <div class="slider-group">
                 <label><i class="bi bi-zoom-in"></i> تكبير</label>
-                <input type="range" id="zoomSlider" min="2" max="15" value="6" step="0.1">
+                <!-- تم تقليل أقصى مسافة إلى 8 لتقييد خروج الكاميرا -->
+                <input type="range" id="zoomSlider" min="2" max="8" value="4" step="0.1">
             </div>
         </div>
 
@@ -461,7 +473,8 @@
         scene.fog = new THREE.FogExp2(0x0a0a1a, 0.015);
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 6);
+        // وضع الكاميرا على مسافة قريبة (4) بدلاً من 6
+        camera.position.set(0, 0, 4);
 
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -613,47 +626,47 @@
         }
 
         function setupModel(model) {
-    // تفعيل الظلال لجميع الأجزاء
-    model.traverse((child) => {
-        if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-            saveOriginalPosition(child);
-            
-            if (child.material) {
-                if (Array.isArray(child.material)) {
-                    child.material.forEach(m => {
-                        if (m.isMeshStandardMaterial || m.isMeshPhysicalMaterial) {
-                            m.needsUpdate = true;
+            // تفعيل الظلال لجميع الأجزاء
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    saveOriginalPosition(child);
+                    
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(m => {
+                                if (m.isMeshStandardMaterial || m.isMeshPhysicalMaterial) {
+                                    m.needsUpdate = true;
+                                }
+                            });
+                        } else {
+                            if (child.material.isMeshStandardMaterial || child.material.isMeshPhysicalMaterial) {
+                                child.material.needsUpdate = true;
+                            }
                         }
-                    });
-                } else {
-                    if (child.material.isMeshStandardMaterial || child.material.isMeshPhysicalMaterial) {
-                        child.material.needsUpdate = true;
                     }
                 }
-            }
+            });
+
+            // توسيط النموذج
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            model.position.sub(center);
+
+            // ═══════════════════════════════════════
+            // التحكم في حجم المجسم ← عدّل القيمة هنا
+            // ═══════════════════════════════════════
+            const desiredSize = 0.5;    // الحجم المطلوب (أصغر = مجسم أصغر)
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = desiredSize / maxDim;
+            
+            model.scale.setScalar(scale);
+            // ═══════════════════════════════════════
+
+            scene.add(model);
         }
-    });
-
-    // توسيط النموذج
-    const box = new THREE.Box3().setFromObject(model);
-    const center = box.getCenter(new THREE.Vector3());
-    model.position.sub(center);
-
-    // ═══════════════════════════════════════
-    // التحكم في حجم المجسم ← عدّل القيمة هنا
-    // ═══════════════════════════════════════
-    const desiredSize = 0.5;    // الحجم المطلوب (أصغر = مجسم أصغر)
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = desiredSize / maxDim;
-    
-    model.scale.setScalar(scale);
-    // ═══════════════════════════════════════
-
-    scene.add(model);
-}
 
         function saveOriginalPosition(mesh) {
             originalPositions.set(mesh.uuid, {
@@ -706,7 +719,8 @@
         let isDragging = false;
         let previousMouse = { x: 0, y: 0 };
         let pulseTime = 0;
-        let cameraDistance = 6;
+        // المسافة الابتدائية 4 (أقرب)
+        let cameraDistance = 4;
 
         // Sliders
         const rotX = document.getElementById('rotX');
@@ -895,8 +909,9 @@
 
         window.resetView = function() {
             targetRotation = { x: 0, y: 0, z: 0 };
-            cameraDistance = 6;
-            zoomSlider.value = 6;
+            // إعادة تعيين المسافة إلى 4 (قريبة)
+            cameraDistance = 4;
+            zoomSlider.value = 4;
             updateSliders();
             autoRotate = false;
             explodeMode = false;
@@ -951,8 +966,8 @@
                 heartLight.intensity = 1.0 + Math.sin(pulseTime) * 0.4;
             }
 
-            // Camera zoom
-            const targetZ = cameraDistance;
+            // Camera zoom - تطبيق المسافة المحددة (بحد أقصى 8)
+            const targetZ = Math.min(cameraDistance, 8); // تأمين إضافي
             camera.position.z += (targetZ - camera.position.z) * 0.1;
 
             // Floating particles
@@ -993,3 +1008,4 @@
     </script>
 </body>
 </html>
+```
