@@ -408,7 +408,8 @@
             </div>
             <div class="slider-group">
                 <label><i class="bi bi-zoom-in"></i> تكبير</label>
-                <input type="range" id="zoomSlider" min="2" max="15" value="6" step="0.1">
+                <!-- نطاق أوسع للتحكم بالمسافة من الخارج -->
+                <input type="range" id="zoomSlider" min="3" max="20" value="10" step="0.1">
             </div>
         </div>
 
@@ -461,7 +462,8 @@
         scene.fog = new THREE.FogExp2(0x0a0a1a, 0.015);
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 6);
+        // مسافة ابتدائية أكبر للخروج من القلب
+        camera.position.set(0, 0, 10);
 
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -613,47 +615,44 @@
         }
 
         function setupModel(model) {
-    // تفعيل الظلال لجميع الأجزاء
-    model.traverse((child) => {
-        if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-            saveOriginalPosition(child);
-            
-            if (child.material) {
-                if (Array.isArray(child.material)) {
-                    child.material.forEach(m => {
-                        if (m.isMeshStandardMaterial || m.isMeshPhysicalMaterial) {
-                            m.needsUpdate = true;
+            // تفعيل الظلال لجميع الأجزاء
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    saveOriginalPosition(child);
+                    
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(m => {
+                                if (m.isMeshStandardMaterial || m.isMeshPhysicalMaterial) {
+                                    m.needsUpdate = true;
+                                }
+                            });
+                        } else {
+                            if (child.material.isMeshStandardMaterial || child.material.isMeshPhysicalMaterial) {
+                                child.material.needsUpdate = true;
+                            }
                         }
-                    });
-                } else {
-                    if (child.material.isMeshStandardMaterial || child.material.isMeshPhysicalMaterial) {
-                        child.material.needsUpdate = true;
                     }
                 }
-            }
+            });
+
+            // توسيط النموذج
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            model.position.sub(center);
+
+            // حجم مناسب يظهر بوضوح من الخارج
+            const desiredSize = 0.5;
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = desiredSize / maxDim;
+            
+            model.scale.setScalar(scale);
+
+            scene.add(model);
         }
-    });
-
-    // توسيط النموذج
-    const box = new THREE.Box3().setFromObject(model);
-    const center = box.getCenter(new THREE.Vector3());
-    model.position.sub(center);
-
-    // ═══════════════════════════════════════
-    // التحكم في حجم المجسم ← عدّل القيمة هنا
-    // ═══════════════════════════════════════
-    const desiredSize = 0.5;    // الحجم المطلوب (أصغر = مجسم أصغر)
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = desiredSize / maxDim;
-    
-    model.scale.setScalar(scale);
-    // ═══════════════════════════════════════
-
-    scene.add(model);
-}
 
         function saveOriginalPosition(mesh) {
             originalPositions.set(mesh.uuid, {
@@ -706,7 +705,8 @@
         let isDragging = false;
         let previousMouse = { x: 0, y: 0 };
         let pulseTime = 0;
-        let cameraDistance = 6;
+        // مسافة ابتدائية 10 (خارج القلب)
+        let cameraDistance = 10;
 
         // Sliders
         const rotX = document.getElementById('rotX');
@@ -895,8 +895,9 @@
 
         window.resetView = function() {
             targetRotation = { x: 0, y: 0, z: 0 };
-            cameraDistance = 6;
-            zoomSlider.value = 6;
+            // إعادة تعيين المسافة إلى 10
+            cameraDistance = 10;
+            zoomSlider.value = 10;
             updateSliders();
             autoRotate = false;
             explodeMode = false;
@@ -951,7 +952,7 @@
                 heartLight.intensity = 1.0 + Math.sin(pulseTime) * 0.4;
             }
 
-            // Camera zoom
+            // تطبيق مسافة الكاميرا بدون قيد إضافي (التحكم كامل)
             const targetZ = cameraDistance;
             camera.position.z += (targetZ - camera.position.z) * 0.1;
 
