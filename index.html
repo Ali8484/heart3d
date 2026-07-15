@@ -613,50 +613,47 @@
         }
 
         function setupModel(model) {
-            // تفعيل الظلال لجميع الأجزاء
-            model.traverse((child) => {
-                if (child.isMesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    saveOriginalPosition(child);
-                    
-                    // تحسين المواد إذا لزم الأمر
-                    if (child.material) {
-                        if (Array.isArray(child.material)) {
-                            child.material.forEach(m => {
-                                if (m.isMeshStandardMaterial || m.isMeshPhysicalMaterial) {
-                                    m.needsUpdate = true;
-                                }
-                            });
-                        } else {
-                            if (child.material.isMeshStandardMaterial || child.material.isMeshPhysicalMaterial) {
-                                child.material.needsUpdate = true;
-                            }
+    // تفعيل الظلال لجميع الأجزاء
+    model.traverse((child) => {
+        if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            saveOriginalPosition(child);
+            
+            if (child.material) {
+                if (Array.isArray(child.material)) {
+                    child.material.forEach(m => {
+                        if (m.isMeshStandardMaterial || m.isMeshPhysicalMaterial) {
+                            m.needsUpdate = true;
                         }
+                    });
+                } else {
+                    if (child.material.isMeshStandardMaterial || child.material.isMeshPhysicalMaterial) {
+                        child.material.needsUpdate = true;
                     }
                 }
-            });
-
-            // توسيط النموذج
-            const box = new THREE.Box3().setFromObject(model);
-            const center = box.getCenter(new THREE.Vector3());
-            model.position.sub(center);
-            
-            // تعديل الحجم إذا لزم الأمر
-            const size = box.getSize(new THREE.Vector3());
-            const maxDim = Math.max(size.x, size.y, size.z);
-            if (maxDim > 5) {
-                const scale = 3 / maxDim;
-                model.scale.setScalar(scale);
-            } else if (maxDim < 1) {
-                const scale = 2 / maxDim;
-                model.scale.setScalar(scale);
             }
-
-            scene.add(model);
-            model.scale.setScalar(10.05);  // ← غيّر 0.5 للقيمة التي تناسبك (0.1 = صغير جداً, 1.0 = طبيعي)
-
         }
+    });
+
+    // توسيط النموذج
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    model.position.sub(center);
+
+    // ═══════════════════════════════════════
+    // التحكم في حجم المجسم ← عدّل القيمة هنا
+    // ═══════════════════════════════════════
+    const desiredSize = 2.0;    // الحجم المطلوب (أصغر = مجسم أصغر)
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = desiredSize / maxDim;
+    
+    model.scale.setScalar(scale);
+    // ═══════════════════════════════════════
+
+    scene.add(model);
+}
 
         function saveOriginalPosition(mesh) {
             originalPositions.set(mesh.uuid, {
