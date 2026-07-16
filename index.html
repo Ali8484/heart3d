@@ -10,7 +10,6 @@
 
     <style>
         :root {
-            --primary-color: #dc3545;
             --dark-bg: #0a0a1a;
         }
 
@@ -135,12 +134,10 @@
             z-index: 20;
             pointer-events: auto;
             opacity: 0;
-            transition: opacity 0.3s ease, transform 0.1s ease;
+            transition: opacity 0.3s ease;
             cursor: grab;
             user-select: none;
             touch-action: none;
-            display: flex;
-            align-items: center;
         }
 
         .heart-label.visible {
@@ -149,7 +146,6 @@
 
         .heart-label:active {
             cursor: grabbing;
-            transform: scale(1.03);
         }
 
         .heart-label.dragging {
@@ -159,10 +155,6 @@
         .heart-label.locked {
             cursor: default;
             opacity: 0.85;
-        }
-
-        .heart-label.locked:active {
-            transform: none;
         }
 
         .heart-label.locked .label-card {
@@ -231,51 +223,6 @@
         .label-color-pink { border-color: #e91e63; }
         .label-color-pink .label-title { color: #e91e63; }
         .label-color-pink .label-number { background: #c2185b; left: -8px; }
-
-        /* ═══════════════════════════════════════════ */
-        /* ═══ خطوط التأشير والأسهم ═══ */
-        /* ═══════════════════════════════════════════ */
-        .label-svg-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 18;
-            pointer-events: none;
-            overflow: visible;
-        }
-
-        .label-svg-overlay line {
-            stroke-width: 2.5;
-            stroke-linecap: round;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .label-svg-overlay line.visible {
-            opacity: 0.85;
-        }
-
-        .label-svg-overlay line.hidden {
-            opacity: 0;
-        }
-
-        .label-svg-overlay circle.dot {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .label-svg-overlay circle.dot.visible {
-            opacity: 1;
-        }
-
-        .label-svg-overlay polygon.arrow-head {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .label-svg-overlay polygon.arrow-head.visible {
-            opacity: 0.85;
-        }
 
         .loading-screen {
             position: fixed;
@@ -403,9 +350,6 @@
     </div>
 
     <canvas id="three-canvas"></canvas>
-
-    <!-- SVG للخطوط والأسهم والنقاط -->
-    <svg class="label-svg-overlay" id="labelSvgOverlay"></svg>
 
     <!-- حاوية اللافتات -->
     <div id="labelsContainer"></div>
@@ -563,7 +507,7 @@
         scene.add(gridHelper);
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══ نظام التسميات التفاعلية - مطابق للصورة ═══
+        // ═══ نظام التسميات التفاعلية - بدون خطوط ═══
         // ═══════════════════════════════════════════════════════════════
         let labelsVisible = true;
         let labelsLocked = false;
@@ -571,101 +515,19 @@
         let draggedLabel = null;
         let dragOffset = { x: 0, y: 0 };
 
-        // ═══ تعريف الأجزاء مطابق للصورة تماماً ═══
+        // ═══ تعريف الأجزاء مطابق للصورة ═══
         const heartPartsData = [
-            // الأعلى - الشرايين
-            {
-                id: 'aorta',
-                name: 'الشريان الأورطي',
-                desc: 'Aorta',
-                position: new THREE.Vector3(0.0, 2.2, 0.3),
-                color: 'red',
-                side: 'top'
-            },
-            {
-                id: 'pulmonary-trunk',
-                name: 'الشريان الرئوي',
-                desc: 'Pulmonary Trunk',
-                position: new THREE.Vector3(0.6, 1.8, 0.4),
-                color: 'blue',
-                side: 'right'
-            },
-            {
-                id: 'superior-vena-cava',
-                name: 'الوريد الأجوف العلوي',
-                desc: 'Superior Vena Cava',
-                position: new THREE.Vector3(-0.5, 1.8, 0.2),
-                color: 'darkblue',
-                side: 'left'
-            },
-            // الأذينان
-            {
-                id: 'right-atrium',
-                name: 'الأذين الأيمن',
-                desc: 'Right Atrium',
-                position: new THREE.Vector3(0.8, 0.8, 0.3),
-                color: 'blue',
-                side: 'right'
-            },
-            {
-                id: 'left-atrium',
-                name: 'الأذين الأيسر',
-                desc: 'Left Atrium',
-                position: new THREE.Vector3(-0.7, 0.8, 0.2),
-                color: 'red',
-                side: 'left'
-            },
-            // الشرايين التاجية
-            {
-                id: 'left-coronary',
-                name: 'الشريان التاجي الأيسر',
-                desc: 'Left Coronary Artery',
-                position: new THREE.Vector3(-0.4, 0.4, 0.7),
-                color: 'gold',
-                side: 'left'
-            },
-            {
-                id: 'right-coronary',
-                name: 'الشريان التاجي الأيمن',
-                desc: 'Right Coronary Artery',
-                position: new THREE.Vector3(0.4, 0.3, 0.7),
-                color: 'orange',
-                side: 'right'
-            },
-            // البطينان
-            {
-                id: 'right-ventricle',
-                name: 'البطين الأيمن',
-                desc: 'Right Ventricle',
-                position: new THREE.Vector3(0.6, -0.4, 0.5),
-                color: 'blue',
-                side: 'right'
-            },
-            {
-                id: 'left-ventricle',
-                name: 'البطين الأيسر',
-                desc: 'Left Ventricle',
-                position: new THREE.Vector3(-0.5, -0.4, 0.4),
-                color: 'red',
-                side: 'left'
-            },
-            // الأسفل
-            {
-                id: 'inferior-vena-cava',
-                name: 'الوريد الأجوف السفلي',
-                desc: 'Inferior Vena Cava',
-                position: new THREE.Vector3(0.3, -1.3, 0.2),
-                color: 'purple',
-                side: 'right'
-            },
-            {
-                id: 'apex',
-                name: 'قمة القلب',
-                desc: 'Apex of Heart',
-                position: new THREE.Vector3(-0.3, -1.6, 0.4),
-                color: 'pink',
-                side: 'bottom'
-            }
+            { id: 'aorta', name: 'الشريان الأورطي', position: new THREE.Vector3(0.0, 2.2, 0.3), color: 'red' },
+            { id: 'pulmonary-trunk', name: 'الشريان الرئوي', position: new THREE.Vector3(0.6, 1.8, 0.4), color: 'blue' },
+            { id: 'superior-vena-cava', name: 'الوريد الأجوف العلوي', position: new THREE.Vector3(-0.5, 1.8, 0.2), color: 'darkblue' },
+            { id: 'right-atrium', name: 'الأذين الأيمن', position: new THREE.Vector3(0.8, 0.8, 0.3), color: 'blue' },
+            { id: 'left-atrium', name: 'الأذين الأيسر', position: new THREE.Vector3(-0.7, 0.8, 0.2), color: 'red' },
+            { id: 'left-coronary', name: 'الشريان التاجي الأيسر', position: new THREE.Vector3(-0.4, 0.4, 0.7), color: 'gold' },
+            { id: 'right-coronary', name: 'الشريان التاجي الأيمن', position: new THREE.Vector3(0.4, 0.3, 0.7), color: 'orange' },
+            { id: 'right-ventricle', name: 'البطين الأيمن', position: new THREE.Vector3(0.6, -0.4, 0.5), color: 'blue' },
+            { id: 'left-ventricle', name: 'البطين الأيسر', position: new THREE.Vector3(-0.5, -0.4, 0.4), color: 'red' },
+            { id: 'inferior-vena-cava', name: 'الوريد الأجوف السفلي', position: new THREE.Vector3(0.3, -1.3, 0.2), color: 'purple' },
+            { id: 'apex', name: 'قمة القلب', position: new THREE.Vector3(-0.3, -1.6, 0.4), color: 'pink' }
         ];
 
         const colorMap = {
@@ -680,43 +542,14 @@
         // ═══════════════════════════════════════════════════════════════
         function createLabels() {
             const container = document.getElementById('labelsContainer');
-            const svg = document.getElementById('labelSvgOverlay');
             container.innerHTML = '';
-            svg.innerHTML = '';
             heartLabels = [];
 
             heartPartsData.forEach((part, index) => {
-                const colorHex = getColorHex(part.color);
-
-                // إنشاء نقطة على الجزء
-                const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                dot.setAttribute('id', `dot-${part.id}`);
-                dot.setAttribute('class', 'dot');
-                dot.setAttribute('r', '5');
-                dot.setAttribute('fill', colorHex);
-                dot.setAttribute('stroke', '#fff');
-                dot.setAttribute('stroke-width', '1.5');
-                svg.appendChild(dot);
-
-                // إنشاء خط التأشير
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('id', `line-${part.id}`);
-                line.setAttribute('stroke', colorHex);
-                svg.appendChild(line);
-
-                // إنشاء رأس السهم
-                const arrowHead = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-                arrowHead.setAttribute('id', `arrow-${part.id}`);
-                arrowHead.setAttribute('class', 'arrow-head');
-                arrowHead.setAttribute('fill', colorHex);
-                svg.appendChild(arrowHead);
-
-                // إنشاء عنصر التسمية
                 const labelEl = document.createElement('div');
                 labelEl.className = `heart-label label-color-${part.color}`;
                 labelEl.id = `label-${part.id}`;
                 labelEl.dataset.id = part.id;
-                labelEl.dataset.index = index;
                 labelEl.innerHTML = `
                     <div class="label-card">
                         <div class="label-number">${index + 1}</div>
@@ -733,9 +566,6 @@
                 heartLabels.push({
                     ...part,
                     element: labelEl,
-                    lineElement: line,
-                    dotElement: dot,
-                    arrowElement: arrowHead,
                     worldPosition: part.position.clone(),
                     isSaved: false
                 });
@@ -743,7 +573,7 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══ معالجات السحب والإفلات ═══
+        // ═══ معالجات السحب والإفلات - تثبيت بعد السحب ═══
         // ═══════════════════════════════════════════════════════════════
         function onLabelMouseDown(e) {
             if (labelsLocked) return;
@@ -797,7 +627,6 @@
             y = Math.max(0, Math.min(window.innerHeight - h, y));
             el.style.left = x + 'px';
             el.style.top = y + 'px';
-            updateSingleArrow(draggedLabel);
         }
 
         function onLabelMouseUp(e) {
@@ -815,13 +644,14 @@
         function endDrag() {
             if (draggedLabel) {
                 draggedLabel.element.classList.remove('dragging');
+                // التسمية تبقى في مكانها - لا ترجع تلقائياً
                 draggedLabel = null;
             }
             controls.enabled = true;
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══ تحديث الأسهم والخطوط ═══
+        // ═══ تحديث مواقع التسميات - فقط المرئية من الكاميرا ═══
         // ═══════════════════════════════════════════════════════════════
         function updateLabels() {
             if (!labelsVisible || !heartModel) return;
@@ -830,13 +660,10 @@
             const cameraDirection = new THREE.Vector3();
             camera.getWorldDirection(cameraDirection);
 
-            heartLabels.forEach((label, index) => {
-                // موقع الجزء على الشاشة
+            heartLabels.forEach((label) => {
                 tempV.copy(label.worldPosition);
                 tempV.applyMatrix4(heartModel.matrixWorld);
                 tempV.project(camera);
-                const partX = (tempV.x * 0.5 + 0.5) * window.innerWidth;
-                const partY = (-tempV.y * 0.5 + 0.5) * window.innerHeight;
 
                 const toPart = tempV.clone().sub(camera.position).normalize();
                 const dotProduct = cameraDirection.dot(toPart);
@@ -844,98 +671,26 @@
 
                 if (!isFacingCamera || tempV.z > 1) {
                     label.element.classList.remove('visible');
-                    label.lineElement.classList.remove('visible');
-                    label.dotElement.classList.remove('visible');
-                    label.arrowElement.classList.remove('visible');
                     return;
                 }
 
-                // تحديث نقطة الجزء
-                label.dotElement.setAttribute('cx', partX);
-                label.dotElement.setAttribute('cy', partY);
-                label.dotElement.classList.add('visible');
+                label.element.classList.add('visible');
 
-                // إذا لم تكن تُسحب وغير مُثبَّتة، ضعها تلقائياً
-                if (draggedLabel !== label && !label.isSaved) {
-                    const baseRadius = Math.min(window.innerWidth, window.innerHeight) * 0.28;
-                    let offsetX = 0, offsetY = 0;
-                    switch(label.side) {
-                        case 'left':
-                            offsetX = -baseRadius;
-                            offsetY = (index % 2 === 0) ? -25 : 25;
-                            break;
-                        case 'right':
-                            offsetX = baseRadius;
-                            offsetY = (index % 2 === 0) ? -25 : 25;
-                            break;
-                        case 'top':
-                            offsetX = (index % 2 === 0) ? -40 : 40;
-                            offsetY = -baseRadius * 0.6;
-                            break;
-                        case 'bottom':
-                            offsetX = (index % 2 === 0) ? -40 : 40;
-                            offsetY = baseRadius * 0.6;
-                            break;
-                    }
+                // إذا لم تُسحب وغير مُثبَّتة ولا يوجد موقع محفوظ، ضعها تلقائياً
+                if (!label.isSaved && !label.element.style.left) {
+                    const partX = (tempV.x * 0.5 + 0.5) * window.innerWidth;
+                    const partY = (-tempV.y * 0.5 + 0.5) * window.innerHeight;
+                    const baseRadius = Math.min(window.innerWidth, window.innerHeight) * 0.25;
+                    const offsetX = (Math.random() - 0.5) * baseRadius * 2;
+                    const offsetY = -baseRadius * 0.5 + (Math.random() - 0.5) * 50;
                     let labelX = partX + offsetX;
                     let labelY = partY + offsetY;
-                    const padding = 80;
-                    labelX = Math.max(padding, Math.min(window.innerWidth - padding, labelX));
+                    labelX = Math.max(80, Math.min(window.innerWidth - 200, labelX));
                     labelY = Math.max(70, Math.min(window.innerHeight - 120, labelY));
                     label.element.style.left = labelX + 'px';
                     label.element.style.top = labelY + 'px';
                 }
-
-                label.element.classList.add('visible');
-                updateSingleArrow(label);
             });
-        }
-
-        function updateSingleArrow(label) {
-            if (!heartModel) return;
-            const tempV = new THREE.Vector3();
-            tempV.copy(label.worldPosition);
-            tempV.applyMatrix4(heartModel.matrixWorld);
-            tempV.project(camera);
-            const partX = (tempV.x * 0.5 + 0.5) * window.innerWidth;
-            const partY = (-tempV.y * 0.5 + 0.5) * window.innerHeight;
-
-            const rect = label.element.getBoundingClientRect();
-            const labelCX = rect.left + rect.width / 2;
-            const labelCY = rect.top + rect.height / 2;
-
-            // حساب زاوية الخط
-            const dx = partX - labelCX;
-            const dy = partY - labelCY;
-            const angle = Math.atan2(dy, dx);
-            const dist = Math.sqrt(dx * dx + dy * dy);
-
-            // نقطة بداية الخط (من حافة اللافتة)
-            const labelRadius = Math.min(rect.width, rect.height) / 2;
-            const startX = labelCX + Math.cos(angle) * labelRadius;
-            const startY = labelCY + Math.sin(angle) * labelRadius;
-
-            // نقطة نهاية الخط (قبل النقطة)
-            const endX = partX - Math.cos(angle) * 8;
-            const endY = partY - Math.sin(angle) * 8;
-
-            label.lineElement.setAttribute('x1', startX);
-            label.lineElement.setAttribute('y1', startY);
-            label.lineElement.setAttribute('x2', endX);
-            label.lineElement.setAttribute('y2', endY);
-            label.lineElement.classList.add('visible');
-
-            // رأس السهم (مثلث صغير عند النقطة)
-            const arrowSize = 8;
-            const ax = partX;
-            const ay = partY;
-            const a1x = ax - arrowSize * Math.cos(angle - 0.5);
-            const a1y = ay - arrowSize * Math.sin(angle - 0.5);
-            const a2x = ax - arrowSize * Math.cos(angle + 0.5);
-            const a2y = ay - arrowSize * Math.sin(angle + 0.5);
-
-            label.arrowElement.setAttribute('points', `${ax},${ay} ${a1x},${a1y} ${a2x},${a2y}`);
-            label.arrowElement.classList.add('visible');
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -959,6 +714,8 @@
             heartLabels.forEach(label => {
                 label.isSaved = false;
                 label.element.classList.remove('locked');
+                label.element.style.left = '';
+                label.element.style.top = '';
             });
             document.getElementById('btnSave').disabled = false;
             document.getElementById('btnSave').innerHTML = '<i class="bi bi-save"></i> حفظ المواقع';
@@ -967,18 +724,9 @@
         window.toggleLabels = function() {
             labelsVisible = !labelsVisible;
             document.getElementById('btnLabels').classList.toggle('active');
-            const svg = document.getElementById('labelSvgOverlay');
             heartLabels.forEach(label => {
-                if (!labelsVisible) {
-                    label.element.style.display = 'none';
-                    label.lineElement.classList.remove('visible');
-                    label.dotElement.classList.remove('visible');
-                    label.arrowElement.classList.remove('visible');
-                } else {
-                    label.element.style.display = 'block';
-                }
+                label.element.style.display = labelsVisible ? 'block' : 'none';
             });
-            svg.style.display = labelsVisible ? 'block' : 'none';
         };
 
         // ═══════════════════════════════════════════════════════════════
