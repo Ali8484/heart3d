@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>القلب البشري 3D - تسميات تفاعلية</title>
+    <title>القلب البشري 3D - تسميات ثلاثية الأبعاد</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -127,21 +127,17 @@
         }
 
         /* ═══════════════════════════════════════════ */
-        /* ═══ لافتات التسمية - قابلة للسحب ═══ */
+        /* ═══ لافتات ثلاثية الأبعاد - Sprite Labels ═══ */
         /* ═══════════════════════════════════════════ */
         .heart-label {
-            position: fixed;
+            position: absolute;
             z-index: 20;
             pointer-events: auto;
-            opacity: 0;
-            transition: opacity 0.3s ease;
             cursor: grab;
             user-select: none;
             touch-action: none;
-        }
-
-        .heart-label.visible {
-            opacity: 1;
+            transform: translate(-50%, -50%);
+            will-change: transform;
         }
 
         .heart-label:active {
@@ -152,17 +148,22 @@
             z-index: 1000;
         }
 
+        .heart-label.hidden-side {
+            opacity: 0.3;
+            filter: grayscale(0.7);
+        }
+
         .heart-label.locked {
             cursor: default;
-            opacity: 0.85;
         }
 
         .heart-label.locked .label-card {
             border-style: dashed;
+            opacity: 0.85;
         }
 
         .label-card {
-            background: rgba(10, 10, 30, 0.95);
+            background: rgba(10, 10, 30, 0.92);
             backdrop-filter: blur(15px);
             border: 2px solid;
             border-radius: 10px;
@@ -174,6 +175,7 @@
             min-width: 140px;
             text-align: center;
             font-size: 0.9rem;
+            transition: opacity 0.3s, filter 0.3s;
         }
 
         .label-title {
@@ -352,7 +354,7 @@
     <canvas id="three-canvas"></canvas>
 
     <!-- حاوية اللافتات -->
-    <div id="labelsContainer"></div>
+    <div id="labelsContainer" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:20;"></div>
 
     <div class="ui-layer top-bar">
         <div class="brand">
@@ -361,7 +363,7 @@
         </div>
         <div class="info-badge">
             <i class="bi bi-hand-index-thumb me-1"></i>
-            اسحب اللافتات وضعها قرب القلب
+            اسحب اللافتات حول القلب في الفضاء الثلاثي الأبعاد
         </div>
     </div>
 
@@ -507,27 +509,42 @@
         scene.add(gridHelper);
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══ نظام التسميات التفاعلية - بدون خطوط ═══
+        // ═══ نظام التسميات الثلاثية الأبعاد ═══
         // ═══════════════════════════════════════════════════════════════
         let labelsVisible = true;
         let labelsLocked = false;
         let heartLabels = [];
         let draggedLabel = null;
-        let dragOffset = { x: 0, y: 0 };
+        let isDragging = false;
+        let dragStartPos = new THREE.Vector3();
+        let dragPlane = new THREE.Plane();
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
 
-        // ═══ تعريف الأجزاء مطابق للصورة ═══
+        // ═══ تعريف الأجزاء - إحداثيات ثلاثية الأبعاد حول القلب ═══
         const heartPartsData = [
-            { id: 'aorta', name: 'الشريان الأورطي', position: new THREE.Vector3(0.0, 2.2, 0.3), color: 'red' },
-            { id: 'pulmonary-trunk', name: 'الشريان الرئوي', position: new THREE.Vector3(0.6, 1.8, 0.4), color: 'blue' },
-            { id: 'superior-vena-cava', name: 'الوريد الأجوف العلوي', position: new THREE.Vector3(-0.5, 1.8, 0.2), color: 'darkblue' },
-            { id: 'right-atrium', name: 'الأذين الأيمن', position: new THREE.Vector3(0.8, 0.8, 0.3), color: 'blue' },
-            { id: 'left-atrium', name: 'الأذين الأيسر', position: new THREE.Vector3(-0.7, 0.8, 0.2), color: 'red' },
-            { id: 'left-coronary', name: 'الشريان التاجي الأيسر', position: new THREE.Vector3(-0.4, 0.4, 0.7), color: 'gold' },
-            { id: 'right-coronary', name: 'الشريان التاجي الأيمن', position: new THREE.Vector3(0.4, 0.3, 0.7), color: 'orange' },
-            { id: 'right-ventricle', name: 'البطين الأيمن', position: new THREE.Vector3(0.6, -0.4, 0.5), color: 'blue' },
-            { id: 'left-ventricle', name: 'البطين الأيسر', position: new THREE.Vector3(-0.5, -0.4, 0.4), color: 'red' },
-            { id: 'inferior-vena-cava', name: 'الوريد الأجوف السفلي', position: new THREE.Vector3(0.3, -1.3, 0.2), color: 'purple' },
-            { id: 'apex', name: 'قمة القلب', position: new THREE.Vector3(-0.3, -1.6, 0.4), color: 'pink' }
+            { id: 'aorta', name: 'الشريان الأورطي', color: 'red', 
+              offset: new THREE.Vector3(0.0, 2.5, 0.5) },
+            { id: 'pulmonary-trunk', name: 'الشريان الرئوي', color: 'blue',
+              offset: new THREE.Vector3(1.2, 2.0, 0.8) },
+            { id: 'superior-vena-cava', name: 'الوريد الأجوف العلوي', color: 'darkblue',
+              offset: new THREE.Vector3(-1.0, 2.0, 0.5) },
+            { id: 'right-atrium', name: 'الأذين الأيمن', color: 'blue',
+              offset: new THREE.Vector3(1.5, 0.8, 0.8) },
+            { id: 'left-atrium', name: 'الأذين الأيسر', color: 'red',
+              offset: new THREE.Vector3(-1.3, 0.8, 0.5) },
+            { id: 'left-coronary', name: 'الشريان التاجي الأيسر', color: 'gold',
+              offset: new THREE.Vector3(-0.8, 0.5, 1.5) },
+            { id: 'right-coronary', name: 'الشريان التاجي الأيمن', color: 'orange',
+              offset: new THREE.Vector3(0.8, 0.3, 1.5) },
+            { id: 'right-ventricle', name: 'البطين الأيمن', color: 'blue',
+              offset: new THREE.Vector3(1.3, -0.5, 0.8) },
+            { id: 'left-ventricle', name: 'البطين الأيسر', color: 'red',
+              offset: new THREE.Vector3(-1.1, -0.5, 0.6) },
+            { id: 'inferior-vena-cava', name: 'الوريد الأجوف السفلي', color: 'purple',
+              offset: new THREE.Vector3(0.5, -1.8, 0.5) },
+            { id: 'apex', name: 'قمة القلب', color: 'pink',
+              offset: new THREE.Vector3(-0.5, -2.2, 0.8) }
         ];
 
         const colorMap = {
@@ -538,7 +555,7 @@
         function getColorHex(colorName) { return colorMap[colorName] || '#ff6b6b'; }
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══ إنشاء التسميات القابلة للسحب ═══
+        // ═══ إنشاء التسميات الثلاثية الأبعاد ═══
         // ═══════════════════════════════════════════════════════════════
         function createLabels() {
             const container = document.getElementById('labelsContainer');
@@ -566,20 +583,63 @@
                 heartLabels.push({
                     ...part,
                     element: labelEl,
-                    worldPosition: part.position.clone(),
+                    // الموضع الثلاثي الأبعاد الحالي للتسمية
+                    position3D: part.offset.clone(),
+                    // هل تم حفظ الموضع؟
                     isSaved: false
                 });
             });
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══ معالجات السحب والإفلات - تثبيت بعد السحب ═══
+        // ═══ تحويل 3D إلى شاشة ═══
+        // ═══════════════════════════════════════════════════════════════
+        function worldToScreen(worldPos) {
+            const tempV = worldPos.clone();
+            tempV.project(camera);
+            return {
+                x: (tempV.x * 0.5 + 0.5) * window.innerWidth,
+                y: (-tempV.y * 0.5 + 0.5) * window.innerHeight,
+                z: tempV.z
+            };
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // ═══ تحويل شاشة إلى 3D على مستوى معين ═══
+        // ═══════════════════════════════════════════════════════════════
+        function screenToWorld(screenX, screenY, planeZ) {
+            mouse.x = (screenX / window.innerWidth) * 2 - 1;
+            mouse.y = -(screenY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+
+            // إنشاء مستوى عند عمق معين
+            const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -planeZ);
+            const target = new THREE.Vector3();
+            raycaster.ray.intersectPlane(plane, target);
+            return target;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // ═══ معالجات السحب والإفلات - في الفضاء الثلاثي الأبعاد ═══
         // ═══════════════════════════════════════════════════════════════
         function onLabelMouseDown(e) {
             if (labelsLocked) return;
             e.preventDefault();
             e.stopPropagation();
-            startDrag(e.target.closest('.heart-label'), e.clientX, e.clientY);
+
+            const el = e.target.closest('.heart-label');
+            draggedLabel = heartLabels.find(l => l.id === el.dataset.id);
+            if (!draggedLabel) return;
+
+            isDragging = true;
+            draggedLabel.element.classList.add('dragging');
+
+            // حفظ موضع البداية
+            dragStartPos.copy(draggedLabel.position3D);
+
+            // تعطيل التحكم بالكاميرا
+            controls.enabled = false;
+
             document.addEventListener('mousemove', onLabelMouseMove);
             document.addEventListener('mouseup', onLabelMouseUp);
         }
@@ -587,46 +647,47 @@
         function onLabelTouchStart(e) {
             if (labelsLocked) return;
             e.preventDefault();
+
             const touch = e.touches[0];
-            startDrag(e.target.closest('.heart-label'), touch.clientX, touch.clientY);
+            const el = e.target.closest('.heart-label');
+            draggedLabel = heartLabels.find(l => l.id === el.dataset.id);
+            if (!draggedLabel) return;
+
+            isDragging = true;
+            draggedLabel.element.classList.add('dragging');
+            dragStartPos.copy(draggedLabel.position3D);
+            controls.enabled = false;
+
             document.addEventListener('touchmove', onLabelTouchMove, { passive: false });
             document.addEventListener('touchend', onLabelTouchEnd);
         }
 
-        function startDrag(el, clientX, clientY) {
-            draggedLabel = heartLabels.find(l => l.id === el.dataset.id);
-            if (!draggedLabel) return;
-            draggedLabel.element.classList.add('dragging');
-            const rect = el.getBoundingClientRect();
-            dragOffset.x = clientX - rect.left;
-            dragOffset.y = clientY - rect.top;
-            controls.enabled = false;
-        }
-
         function onLabelMouseMove(e) {
-            if (!draggedLabel) return;
+            if (!isDragging || !draggedLabel) return;
             e.preventDefault();
-            moveLabel(e.clientX, e.clientY);
+            moveLabel3D(e.clientX, e.clientY);
         }
 
         function onLabelTouchMove(e) {
-            if (!draggedLabel) return;
+            if (!isDragging || !draggedLabel) return;
             e.preventDefault();
             const touch = e.touches[0];
-            moveLabel(touch.clientX, touch.clientY);
+            moveLabel3D(touch.clientX, touch.clientY);
         }
 
-        function moveLabel(clientX, clientY) {
+        function moveLabel3D(screenX, screenY) {
             if (!draggedLabel) return;
-            let x = clientX - dragOffset.x;
-            let y = clientY - dragOffset.y;
-            const el = draggedLabel.element;
-            const w = el.offsetWidth;
-            const h = el.offsetHeight;
-            x = Math.max(0, Math.min(window.innerWidth - w, x));
-            y = Math.max(0, Math.min(window.innerHeight - h, y));
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
+
+            // الحصول على العمق الحالي للتسمية
+            const currentDepth = draggedLabel.position3D.z;
+
+            // تحويل إحداثيات الشاشة إلى 3D على نفس العمق
+            const worldPos = screenToWorld(screenX, screenY, currentDepth);
+
+            if (worldPos) {
+                // تحديث الموضع الثلاثي الأبعاد
+                draggedLabel.position3D.copy(worldPos);
+            }
         }
 
         function onLabelMouseUp(e) {
@@ -642,53 +703,56 @@
         }
 
         function endDrag() {
+            isDragging = false;
             if (draggedLabel) {
                 draggedLabel.element.classList.remove('dragging');
-                // التسمية تبقى في مكانها - لا ترجع تلقائياً
                 draggedLabel = null;
             }
             controls.enabled = true;
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══ تحديث مواقع التسميات - فقط المرئية من الكاميرا ═══
+        // ═══ تحديث مواقع التسميات - عرض ثلاثي الأبعاد حقيقي ═══
         // ═══════════════════════════════════════════════════════════════
         function updateLabels() {
-            if (!labelsVisible || !heartModel) return;
+            if (!labelsVisible) return;
 
-            const tempV = new THREE.Vector3();
             const cameraDirection = new THREE.Vector3();
             camera.getWorldDirection(cameraDirection);
 
             heartLabels.forEach((label) => {
-                tempV.copy(label.worldPosition);
-                tempV.applyMatrix4(heartModel.matrixWorld);
-                tempV.project(camera);
+                // تحويل الموضع الثلاثي الأبعاد إلى شاشة
+                const screen = worldToScreen(label.position3D);
 
-                const toPart = tempV.clone().sub(camera.position).normalize();
-                const dotProduct = cameraDirection.dot(toPart);
-                const isFacingCamera = dotProduct > 0.1;
+                // التحقق إذا كان الجزء أمام الكاميرا
+                const toLabel = label.position3D.clone().sub(camera.position).normalize();
+                const dotProduct = cameraDirection.dot(toLabel);
+                const isInFront = dotProduct > 0;
 
-                if (!isFacingCamera || tempV.z > 1) {
-                    label.element.classList.remove('visible');
+                // التحقق من حدود الشاشة
+                const isOnScreen = screen.x >= -100 && screen.x <= window.innerWidth + 100 &&
+                                   screen.y >= -50 && screen.y <= window.innerHeight + 50;
+
+                if (!isInFront || !isOnScreen) {
+                    label.element.style.display = 'none';
                     return;
                 }
 
-                label.element.classList.add('visible');
+                label.element.style.display = 'block';
+                label.element.style.left = screen.x + 'px';
+                label.element.style.top = screen.y + 'px';
 
-                // إذا لم تُسحب وغير مُثبَّتة ولا يوجد موقع محفوظ، ضعها تلقائياً
-                if (!label.isSaved && !label.element.style.left) {
-                    const partX = (tempV.x * 0.5 + 0.5) * window.innerWidth;
-                    const partY = (-tempV.y * 0.5 + 0.5) * window.innerHeight;
-                    const baseRadius = Math.min(window.innerWidth, window.innerHeight) * 0.25;
-                    const offsetX = (Math.random() - 0.5) * baseRadius * 2;
-                    const offsetY = -baseRadius * 0.5 + (Math.random() - 0.5) * 50;
-                    let labelX = partX + offsetX;
-                    let labelY = partY + offsetY;
-                    labelX = Math.max(80, Math.min(window.innerWidth - 200, labelX));
-                    labelY = Math.max(70, Math.min(window.innerHeight - 120, labelY));
-                    label.element.style.left = labelX + 'px';
-                    label.element.style.top = labelY + 'px';
+                // ترتيب حسب العمق (Z)
+                label.element.style.zIndex = Math.round(1000 - screen.z * 100);
+
+                // تلاشي إذا كانت خلف القلب
+                const distToCenter = label.position3D.distanceTo(new THREE.Vector3(0,0,0));
+                const heartRadius = 1.5;
+
+                if (distToCenter < heartRadius && dotProduct < 0.3) {
+                    label.element.classList.add('hidden-side');
+                } else {
+                    label.element.classList.remove('hidden-side');
                 }
             });
         }
@@ -714,8 +778,8 @@
             heartLabels.forEach(label => {
                 label.isSaved = false;
                 label.element.classList.remove('locked');
-                label.element.style.left = '';
-                label.element.style.top = '';
+                // إعادة الموضع الأصلي
+                label.position3D.copy(label.offset);
             });
             document.getElementById('btnSave').disabled = false;
             document.getElementById('btnSave').innerHTML = '<i class="bi bi-save"></i> حفظ المواقع';
@@ -927,6 +991,7 @@
                 heartLight.intensity = 1.0 + Math.sin(pulseTime) * 0.4;
             }
 
+            // تحديث مواقع التسميات في كل إطار
             updateLabels();
 
             const positions = particles.geometry.attributes.position.array;
