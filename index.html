@@ -165,37 +165,227 @@
             box-shadow: 0 0 15px rgba(255,107,107,0.3);
         }
 
-        .touch-pad {
+        /* ═══════════════════════════════════════════ */
+        /* ═══ نافذة تحميل المجسم (Modal) ═══ */
+        /* ═══════════════════════════════════════════ */
+        .modal-overlay {
             position: fixed;
-            bottom: 200px;
-            right: 20px;
-            width: 140px; height: 140px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.05);
-            border: 2px solid rgba(255,255,255,0.1);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 10;
-            pointer-events: auto;
-            touch-action: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .touch-knob {
-            width: 50px; height: 50px;
-            border-radius: 50%;
-            background: rgba(255,107,107,0.6);
-            box-shadow: 0 0 20px rgba(255,107,107,0.4);
-            position: absolute;
-            transition: none;
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
         }
 
-        .touch-pad-label {
-            position: absolute;
-            bottom: -25px;
-            font-size: 0.7rem;
+        .modal-box {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 1px solid rgba(255,107,107,0.3);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 450px;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 0 40px rgba(255,107,107,0.1);
+        }
+
+        .modal-overlay.show .modal-box {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ff6b6b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
             color: rgba(255,255,255,0.5);
-            white-space: nowrap;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-close:hover {
+            color: #ff6b6b;
+            background: rgba(255,107,107,0.1);
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-drop-zone {
+            border: 2px dashed rgba(255,107,107,0.4);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            background: rgba(255,107,107,0.05);
+        }
+
+        .file-drop-zone:hover,
+        .file-drop-zone.dragover {
+            border-color: #ff6b6b;
+            background: rgba(255,107,107,0.1);
+        }
+
+        .file-drop-zone i {
+            font-size: 3rem;
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .file-drop-zone .drop-text {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.95rem;
+        }
+
+        .file-drop-zone .drop-hint {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        .file-name {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            text-align: center;
+            min-height: 24px;
+        }
+
+        .url-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .url-input-group label {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85rem;
+        }
+
+        .url-input-group input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 12px 15px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .url-input-group input:focus {
+            border-color: #ff6b6b;
+            background: rgba(255,107,107,0.05);
+        }
+
+        .url-input-group input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(135deg, #ff6b6b, #dc3545);
+            color: white;
+        }
+
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(220,53,69,0.4);
+        }
+
+        .modal-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal-btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .modal-btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .modal-divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.8rem;
+        }
+
+        .modal-divider::before,
+        .modal-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
         }
 
         .loading-screen {
@@ -321,15 +511,16 @@
             .brand { font-size: 1rem; }
             .controls-row { gap: 10px; }
             .slider-group input[type="range"] { width: 100px; }
-            .touch-pad { display: flex; }
             .pulse-indicator { left: 10px; }
             .pulse-bar { height: 60px; }
+            .modal-box { padding: 20px; }
         }
 
         @media (max-width: 576px) {
             .controls-panel { padding: 10px; }
             .btn-action { padding: 8px 14px; font-size: 0.8rem; }
             .slider-group input[type="range"] { width: 80px; }
+            .modal-box { width: 95%; padding: 15px; }
         }
     </style>
 </head>
@@ -367,11 +558,6 @@
         </div>
     </div>
 
-    <div class="touch-pad" id="touchPad">
-        <div class="touch-knob" id="touchKnob"></div>
-        <span class="touch-pad-label">تحكم باللمس</span>
-    </div>
-
     <div class="ui-layer controls-panel">
         <div class="controls-row">
             <div class="slider-group">
@@ -397,10 +583,60 @@
                 <i class="bi bi-box-seam"></i>
                 تفكيك
             </button>
+            <!-- ═══ زر تحميل مجسم جديد ═══ -->
+            <button class="btn-action" id="btnLoadModel" onclick="openLoadModal()">
+                <i class="bi bi-upload"></i>
+                تحميل مجسم
+            </button>
             <button class="btn-action" id="btnReset" onclick="resetView()">
                 <i class="bi bi-arrow-counterclockwise"></i>
                 إعادة
             </button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- ═══ نافذة تحميل المجسم (Modal) ═══ -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="modal-overlay" id="loadModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="bi bi-box-seam"></i>
+                    تحميل مجسم 3D
+                </div>
+                <button class="modal-close" onclick="closeLoadModal()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- رفع ملف -->
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" accept=".glb,.gltf" onchange="handleFileSelect(event)">
+                    <div class="file-drop-zone" id="dropZone">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                        <div class="drop-text">اسحب ملف GLB هنا أو انقر للاختيار</div>
+                        <div class="drop-hint">الصيغ المدعومة: .glb, .gltf</div>
+                    </div>
+                </div>
+                <div class="file-name" id="fileName"></div>
+
+                <div class="modal-divider">أو</div>
+
+                <!-- رابط URL -->
+                <div class="url-input-group">
+                    <label><i class="bi bi-link-45deg"></i> رابط الملف (URL)</label>
+                    <input type="text" id="urlInput" placeholder="https://example.com/model.glb" onkeydown="if(event.key==='Enter') loadFromUrl()">
+                </div>
+
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-secondary" onclick="closeLoadModal()">إلغاء</button>
+                    <button class="modal-btn modal-btn-primary" id="btnConfirmLoad" onclick="loadFromUrl()" disabled>
+                        <i class="bi bi-download"></i> تحميل
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -422,32 +658,12 @@
         // ═══════════════════════════════════════════════════════════════
         // ═══ إعدادات الألوان - يمكنك تعديلها هنا ═══
         // ═══════════════════════════════════════════════════════════════
-        
-        // لون خلفية المشهد (Scene Background)
-        const SCENE_BG_COLOR = 0x33B1D9;        // أزرق داكن مائل للبنفسجي
-        // const SCENE_BG_COLOR = 0x0a0a1a;      // الأسود الأصلي
-        // const SCENE_BG_COLOR = 0x1a0a0a;      // أحمر داكن
-        // const SCENE_BG_COLOR = 0x0a1a0a;      // أخضر داكن
-        // const SCENE_BG_COLOR = 0x2d1b4e;      // بنفسجي غامق
-        
-        // لون الضباب (Fog)
-        const FOG_COLOR = 0x33B1D9;             // يجب أن يطابق لون الخلفية
-        
-        // لون الأرضية (Ground Plane)
-        const GROUND_COLOR = 0x16213e;          // أزرق داكن شفاف
-        // const GROUND_COLOR = 0x0a0a1a;        // أسود شفاف
-        // const GROUND_COLOR = 0x1a0a1a;        // أحمر داكن شفاف
-        
-        // شفافية الأرضية (0 = شفاف تماماً, 1 = غير شفاف)
-        const GROUND_OPACITY = 0.0;              // شفافية 30%
-        // const GROUND_OPACITY = 0.1;           // شفافية 10% (أكثر شفافية)
-        // const GROUND_OPACITY = 0.5;           // شفافية 50%
-        // const GROUND_OPACITY = 0.8;           // شفافية 80% (أقل شفافية)
-        
-        // لون خطوط الشبكة (Grid)
-        const GRID_COLOR_CENTER = 0x4a4a6a;     // خطوط الشبكة الرئيسية
-        const GRID_COLOR_LINES = 0x2a2a4a;      // خطوط الشبكة الفرعية
-        
+        const SCENE_BG_COLOR = 0x33B1D9;
+        const FOG_COLOR = 0x33B1D9;
+        const GROUND_COLOR = 0x16213e;
+        const GROUND_OPACITY = 0.0;
+        const GRID_COLOR_CENTER = 0x4a4a6a;
+        const GRID_COLOR_LINES = 0x2a2a4a;
         // ═══════════════════════════════════════════════════════════════
 
         // ============================================
@@ -455,8 +671,6 @@
         // ============================================
         const canvas = document.getElementById('three-canvas');
         const scene = new THREE.Scene();
-        
-        // تطبيق لون الخلفية
         scene.background = new THREE.Color(SCENE_BG_COLOR);
         scene.fog = new THREE.FogExp2(FOG_COLOR, 0.015);
 
@@ -476,7 +690,7 @@
         scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
         // ============================================
-        // ORBIT CONTROLS - الكاميرا تدور حول المجسم
+        // ORBIT CONTROLS
         // ============================================
         const controls = new OrbitControls(camera, canvas);
         controls.target.set(0, 0, 0);
@@ -521,17 +735,15 @@
         scene.add(heartLight);
 
         // ============================================
-        // GROUND / ENVIRONMENT - الأرضية الشفافة
+        // GROUND
         // ============================================
-        
-        // الأرضية (Plane) - شفافة مع لون
         const planeGeometry = new THREE.PlaneGeometry(50, 50);
         const planeMaterial = new THREE.MeshStandardMaterial({
             color: GROUND_COLOR,
             roughness: 0.3,
             metalness: 0.5,
-            transparent: true,           // تفعيل الشفافية
-            opacity: GROUND_OPACITY,     // مستوى الشفافية
+            transparent: true,
+            opacity: GROUND_OPACITY,
             side: THREE.DoubleSide
         });
         const plane = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -540,13 +752,12 @@
         plane.receiveShadow = true;
         scene.add(plane);
 
-        // شبكة الأرضية (Grid Helper)
         const gridHelper = new THREE.GridHelper(20, 20, GRID_COLOR_CENTER, GRID_COLOR_LINES);
         gridHelper.position.y = -2.99;
         scene.add(gridHelper);
 
         // ============================================
-        // LOAD 3D HEART MODEL
+        // LOAD 3D MODEL
         // ============================================
         let heartModel = null;
         let originalPositions = new Map();
@@ -561,8 +772,12 @@
                     url,
                     (gltf) => { resolve(gltf); },
                     (xhr) => {
-                        const percent = Math.round((xhr.loaded / xhr.total) * 100);
-                        loadingProgress.textContent = percent + '%';
+                        if (xhr.total > 0) {
+                            const percent = Math.round((xhr.loaded / xhr.total) * 100);
+                            loadingProgress.textContent = percent + '%';
+                        } else {
+                            loadingProgress.textContent = 'جاري التحميل...';
+                        }
                     },
                     (error) => { reject(error); }
                 );
@@ -574,44 +789,34 @@
                 const gltf = await loadModel('./models/heart_3d_3.glb');
                 heartModel = gltf.scene;
                 setupModel(heartModel);
-
-                document.getElementById('modelName').textContent = 'قلب بشري (GLB)';
-                let totalFaces = 0;
-                const materialsSet = new Set();
-                heartModel.traverse((child) => {
-                    if (child.isMesh) {
-                        if (child.geometry && child.geometry.index) {
-                            totalFaces += child.geometry.index.count / 3;
-                        } else if (child.geometry && child.geometry.attributes.position) {
-                            totalFaces += child.geometry.attributes.position.count / 3;
-                        }
-                        if (child.material) {
-                            if (Array.isArray(child.material)) {
-                                child.material.forEach(m => materialsSet.add(m.uuid));
-                            } else {
-                                materialsSet.add(child.material.uuid);
-                            }
-                        }
-                    }
-                });
-                document.getElementById('modelPolygons').textContent = 'الأوجه: ~' + Math.round(totalFaces).toLocaleString();
-                document.getElementById('modelMaterials').textContent = 'المواد: ' + materialsSet.size;
-                document.getElementById('modelInfo').classList.add('show');
-
-                setTimeout(() => {
-                    document.getElementById('loadingScreen').classList.add('hidden');
-                }, 500);
-
+                updateModelInfo();
+                hideLoading();
             } catch (error) {
                 console.error('خطأ في تحميل النموذج:', error);
-                loadingProgress.textContent = 'فشل التحميل!';
-                loadingProgress.style.color = '#ff4444';
-                document.querySelector('.loading-text').textContent = 
-                    'تعذر تحميل نموذج القلب. تأكد من وجود الملف في: models/heart_3d_3.glb';
+                showError('تعذر تحميل نموذج القلب. تأكد من وجود الملف في: models/heart_3d_3.glb');
             }
         }
 
         function setupModel(model) {
+            // إزالة المجسم القديم إن وجد
+            if (heartModel) {
+                scene.remove(heartModel);
+                heartModel.traverse((child) => {
+                    if (child.isMesh) {
+                        child.geometry.dispose();
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(m => m.dispose());
+                        } else {
+                            child.material.dispose();
+                        }
+                    }
+                });
+            }
+
+            originalPositions.clear();
+            explodeMode = false;
+            document.getElementById('btnExplode').classList.remove('active');
+
             model.traverse((child) => {
                 if (child.isMesh) {
                     child.castShadow = true;
@@ -638,6 +843,7 @@
             model.scale.setScalar(scale);
 
             scene.add(model);
+            heartModel = model;
         }
 
         function saveOriginalPosition(mesh) {
@@ -645,6 +851,48 @@
                 position: mesh.position.clone(),
                 rotation: mesh.rotation.clone()
             });
+        }
+
+        function updateModelInfo() {
+            if (!heartModel) return;
+
+            document.getElementById('modelName').textContent = 'قلب بشري (GLB)';
+            let totalFaces = 0;
+            const materialsSet = new Set();
+
+            heartModel.traverse((child) => {
+                if (child.isMesh) {
+                    if (child.geometry && child.geometry.index) {
+                        totalFaces += child.geometry.index.count / 3;
+                    } else if (child.geometry && child.geometry.attributes.position) {
+                        totalFaces += child.geometry.attributes.position.count / 3;
+                    }
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(m => materialsSet.add(m.uuid));
+                        } else {
+                            materialsSet.add(child.material.uuid);
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('modelPolygons').textContent = 'الأوجه: ~' + Math.round(totalFaces).toLocaleString();
+            document.getElementById('modelMaterials').textContent = 'المواد: ' + materialsSet.size;
+            document.getElementById('modelInfo').classList.add('show');
+        }
+
+        function hideLoading() {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 500);
+        }
+
+        function showError(msg) {
+            const loadingProgress = document.getElementById('loadingProgress');
+            loadingProgress.textContent = 'فشل التحميل!';
+            loadingProgress.style.color = '#ff4444';
+            document.querySelector('.loading-text').textContent = msg;
         }
 
         // ============================================
@@ -680,7 +928,7 @@
         scene.add(particles);
 
         // ============================================
-        // شريط التكبير - مزامنة مع OrbitControls
+        // ZOOM SLIDER
         // ============================================
         const zoomSlider = document.getElementById('zoomSlider');
         
@@ -693,7 +941,7 @@
 
         function updateZoomSlider() {
             const dist = camera.position.distanceTo(controls.target);
-            zoomSlider.value = Math.min(Math.max(dist, 2), 30);
+            zoomSlider.value = Math.min(Math.max(dist, 2), 50);
         }
 
         // ============================================
@@ -770,6 +1018,138 @@
                 });
             }
         };
+
+        // ============================================
+        // MODAL - تحميل مجسم جديد
+        // ============================================
+        let selectedFile = null;
+
+        window.openLoadModal = function() {
+            document.getElementById('loadModal').classList.add('show');
+            document.getElementById('fileName').textContent = '';
+            document.getElementById('urlInput').value = '';
+            document.getElementById('btnConfirmLoad').disabled = true;
+            selectedFile = null;
+        };
+
+        window.closeLoadModal = function() {
+            document.getElementById('loadModal').classList.remove('show');
+        };
+
+        window.handleFileSelect = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.name.match(/\.(glb|gltf)$/i)) {
+                alert('الصيغة غير مدعومة. يرجى اختيار ملف .glb أو .gltf');
+                return;
+            }
+
+            selectedFile = file;
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('btnConfirmLoad').disabled = false;
+            document.getElementById('urlInput').value = '';
+        };
+
+        window.loadFromUrl = async function() {
+            const urlInput = document.getElementById('urlInput').value.trim();
+            const btnConfirm = document.getElementById('btnConfirmLoad');
+
+            if (selectedFile) {
+                // تحميل من ملف محلي
+                btnConfirm.disabled = true;
+                btnConfirm.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري التحميل...';
+
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const arrayBuffer = e.target.result;
+                        const blob = new Blob([arrayBuffer]);
+                        const url = URL.createObjectURL(blob);
+
+                        document.getElementById('loadingScreen').classList.remove('hidden');
+                        document.getElementById('loadingProgress').textContent = '0%';
+                        document.querySelector('.loading-text').textContent = 'جاري تحميل النموذج...';
+                        document.getElementById('loadingProgress').style.color = '#ff6b6b';
+
+                        const gltf = await loadModel(url);
+                        setupModel(gltf.scene);
+                        updateModelInfo();
+                        hideLoading();
+                        closeLoadModal();
+
+                        // تنظيف
+                        URL.revokeObjectURL(url);
+                        btnConfirm.innerHTML = '<i class="bi bi-download"></i> تحميل';
+                    } catch (error) {
+                        console.error('خطأ:', error);
+                        alert('فشل تحميل المجسم: ' + error.message);
+                        btnConfirm.disabled = false;
+                        btnConfirm.innerHTML = '<i class="bi bi-download"></i> تحميل';
+                        document.getElementById('loadingScreen').classList.add('hidden');
+                    }
+                };
+                reader.readAsArrayBuffer(selectedFile);
+            } else if (urlInput) {
+                // تحميل من رابط
+                if (!urlInput.match(/\.(glb|gltf)(\?.*)?$/i)) {
+                    alert('الرابط يجب أن ينتهي بـ .glb أو .gltf');
+                    return;
+                }
+
+                btnConfirm.disabled = true;
+                btnConfirm.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري التحميل...';
+
+                try {
+                    document.getElementById('loadingScreen').classList.remove('hidden');
+                    document.getElementById('loadingProgress').textContent = '0%';
+                    document.querySelector('.loading-text').textContent = 'جاري تحميل النموذج...';
+
+                    const gltf = await loadModel(urlInput);
+                    setupModel(gltf.scene);
+                    updateModelInfo();
+                    hideLoading();
+                    closeLoadModal();
+                    btnConfirm.innerHTML = '<i class="bi bi-download"></i> تحميل';
+                } catch (error) {
+                    console.error('خطأ:', error);
+                    alert('فشل تحميل المجسم من الرابط. تأكد من أن الرابط صحيح ويدعم CORS.');
+                    btnConfirm.disabled = false;
+                    btnConfirm.innerHTML = '<i class="bi bi-download"></i> تحميل';
+                    document.getElementById('loadingScreen').classList.add('hidden');
+                }
+            }
+        };
+
+        // Drag & Drop للنافذة
+        const dropZone = document.getElementById('dropZone');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const fileInput = document.getElementById('fileInput');
+                fileInput.files = files;
+                handleFileSelect({ target: fileInput });
+            }
+        });
+
+        // إغلاق النافذة بالنقر خارجها
+        document.getElementById('loadModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeLoadModal();
+            }
+        });
 
         // ============================================
         // ANIMATION LOOP
