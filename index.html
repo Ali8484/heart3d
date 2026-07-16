@@ -419,13 +419,46 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
+        // ═══════════════════════════════════════════════════════════════
+        // ═══ إعدادات الألوان - يمكنك تعديلها هنا ═══
+        // ═══════════════════════════════════════════════════════════════
+        
+        // لون خلفية المشهد (Scene Background)
+        const SCENE_BG_COLOR = 0x1a1a2e;        // أزرق داكن مائل للبنفسجي
+        // const SCENE_BG_COLOR = 0x0a0a1a;      // الأسود الأصلي
+        // const SCENE_BG_COLOR = 0x1a0a0a;      // أحمر داكن
+        // const SCENE_BG_COLOR = 0x0a1a0a;      // أخضر داكن
+        // const SCENE_BG_COLOR = 0x2d1b4e;      // بنفسجي غامق
+        
+        // لون الضباب (Fog)
+        const FOG_COLOR = 0x1a1a2e;             // يجب أن يطابق لون الخلفية
+        
+        // لون الأرضية (Ground Plane)
+        const GROUND_COLOR = 0x16213e;          // أزرق داكن شفاف
+        // const GROUND_COLOR = 0x0a0a1a;        // أسود شفاف
+        // const GROUND_COLOR = 0x1a0a1a;        // أحمر داكن شفاف
+        
+        // شفافية الأرضية (0 = شفاف تماماً, 1 = غير شفاف)
+        const GROUND_OPACITY = 0.3;              // شفافية 30%
+        // const GROUND_OPACITY = 0.1;           // شفافية 10% (أكثر شفافية)
+        // const GROUND_OPACITY = 0.5;           // شفافية 50%
+        // const GROUND_OPACITY = 0.8;           // شفافية 80% (أقل شفافية)
+        
+        // لون خطوط الشبكة (Grid)
+        const GRID_COLOR_CENTER = 0x4a4a6a;     // خطوط الشبكة الرئيسية
+        const GRID_COLOR_LINES = 0x2a2a4a;      // خطوط الشبكة الفرعية
+        
+        // ═══════════════════════════════════════════════════════════════
+
         // ============================================
         // SCENE SETUP
         // ============================================
         const canvas = document.getElementById('three-canvas');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0a0a1a);
-        scene.fog = new THREE.FogExp2(0x0a0a1a, 0.015);
+        
+        // تطبيق لون الخلفية
+        scene.background = new THREE.Color(SCENE_BG_COLOR);
+        scene.fog = new THREE.FogExp2(FOG_COLOR, 0.015);
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
         camera.position.set(0, 2, 8);
@@ -446,14 +479,14 @@
         // ORBIT CONTROLS - الكاميرا تدور حول المجسم
         // ============================================
         const controls = new OrbitControls(camera, canvas);
-        controls.target.set(0, 0, 0);           // نقطة الارتكاز = مركز المجسم
-        controls.enableDamping = true;          // حركة ناعمة
+        controls.target.set(0, 0, 0);
+        controls.enableDamping = true;
         controls.dampingFactor = 0.08;
-        controls.minDistance = 2;                 // أقرب مسافة (تكبير قوي)
-        controls.maxDistance = 30;                // أبعد مسافة (رؤية كاملة)
-        controls.rotateSpeed = 0.8;               // سرعة الدوران
-        controls.zoomSpeed = 1.0;                 // سرعة التقريب
-        controls.enablePan = true;                // السماح بالإزاحة (Pan)
+        controls.minDistance = 2;
+        controls.maxDistance = 30;
+        controls.rotateSpeed = 0.8;
+        controls.zoomSpeed = 1.0;
+        controls.enablePan = true;
         controls.panSpeed = 0.5;
         controls.update();
 
@@ -488,13 +521,18 @@
         scene.add(heartLight);
 
         // ============================================
-        // GROUND
+        // GROUND / ENVIRONMENT - الأرضية الشفافة
         // ============================================
+        
+        // الأرضية (Plane) - شفافة مع لون
         const planeGeometry = new THREE.PlaneGeometry(50, 50);
         const planeMaterial = new THREE.MeshStandardMaterial({
-            color: 0x0a0a1a,
-            roughness: 0.05,
-            metalness: 0.9,
+            color: GROUND_COLOR,
+            roughness: 0.3,
+            metalness: 0.5,
+            transparent: true,           // تفعيل الشفافية
+            opacity: GROUND_OPACITY,     // مستوى الشفافية
+            side: THREE.DoubleSide
         });
         const plane = new THREE.Mesh(planeGeometry, planeMaterial);
         plane.rotation.x = -Math.PI / 2;
@@ -502,7 +540,8 @@
         plane.receiveShadow = true;
         scene.add(plane);
 
-        const gridHelper = new THREE.GridHelper(20, 20, 0x1a1a3a, 0x0f0f1f);
+        // شبكة الأرضية (Grid Helper)
+        const gridHelper = new THREE.GridHelper(20, 20, GRID_COLOR_CENTER, GRID_COLOR_LINES);
         gridHelper.position.y = -2.99;
         scene.add(gridHelper);
 
@@ -588,12 +627,10 @@
                 }
             });
 
-            // توسيط النموذج عند (0,0,0)
             const box = new THREE.Box3().setFromObject(model);
             const center = box.getCenter(new THREE.Vector3());
             model.position.sub(center);
 
-            // تعديل الحجم
             const desiredSize = 2.0;
             const size = box.getSize(new THREE.Vector3());
             const maxDim = Math.max(size.x, size.y, size.z);
@@ -649,7 +686,6 @@
         
         zoomSlider.addEventListener('input', (e) => {
             const dist = parseFloat(e.target.value);
-            // ضبط مسافة الكاميرا مع الحفاظ على اتجاهها الحالي
             const direction = camera.position.clone().sub(controls.target).normalize();
             camera.position.copy(controls.target).add(direction.multiplyScalar(dist));
             controls.update();
@@ -715,7 +751,6 @@
         };
 
         window.resetView = function() {
-            // إعادة الكاميرا إلى موضعها الابتدائي
             camera.position.set(0, 2, 8);
             controls.target.set(0, 0, 0);
             controls.update();
@@ -746,10 +781,8 @@
 
             const time = Date.now() * 0.001;
 
-            // تحديث OrbitControls (للدوران التلقائي والتنعيم)
             controls.update();
 
-            // نبض القلب
             if (pulseEnabled && heartModel && !explodeMode) {
                 pulseTime += 0.04;
                 const pulse = 1 + Math.sin(pulseTime) * 0.04;
@@ -760,10 +793,8 @@
                 heartLight.intensity = 1.0 + Math.sin(pulseTime) * 0.4;
             }
 
-            // تحديث شريط التكبير
             updateZoomSlider();
 
-            // جسيمات
             const positions = particles.geometry.attributes.position.array;
             for (let i = 0; i < particleCount; i++) {
                 positions[i * 3 + 1] += Math.sin(time * 0.5 + i) * 0.001;
