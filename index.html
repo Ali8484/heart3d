@@ -158,88 +158,156 @@
         }
 
         /* ═══════════════════════════════════════════ */
-        /* ═══ تسميات أجزاء القلب (Labels) ═══ */
+        /* ═══ تسميات أجزاء القلب - موزعة دائرياً ═══ */
         /* ═══════════════════════════════════════════ */
         .heart-label {
             position: fixed;
             z-index: 20;
             pointer-events: none;
-            transform: translate(-50%, -100%);
             opacity: 0;
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            transition: opacity 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 0;
         }
 
         .heart-label.visible {
             opacity: 1;
-            transform: translate(-50%, -120%);
         }
 
-        .label-content {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 107, 107, 0.5);
-            border-radius: 12px;
-            padding: 8px 16px;
+        .label-line-svg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 19;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        .label-line-svg line {
+            stroke-width: 1.5;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .label-line-svg line.visible {
+            opacity: 0.7;
+        }
+
+        .label-card {
+            background: rgba(10, 10, 30, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid;
+            border-radius: 10px;
+            padding: 8px 14px;
             color: #fff;
-            font-size: 0.85rem;
             white-space: nowrap;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 107, 107, 0.2);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             position: relative;
+            min-width: 140px;
         }
 
-        .label-content::after {
+        .label-card::before {
             content: '';
             position: absolute;
-            bottom: -8px;
+            width: 10px; height: 10px;
+            background: inherit;
+            border: inherit;
+            border-width: 0 0 1px 1px;
+            transform: rotate(45deg);
+        }
+
+        /* اتجاه السهم حسب موقع التسمية */
+        .label-left .label-card::before {
+            right: -6px;
+            top: 50%;
+            margin-top: -5px;
+            border-width: 1px 1px 0 0;
+        }
+
+        .label-right .label-card::before {
+            left: -6px;
+            top: 50%;
+            margin-top: -5px;
+            border-width: 0 0 1px 1px;
+        }
+
+        .label-top .label-card::before {
+            bottom: -6px;
             left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 8px solid rgba(255, 107, 107, 0.5);
+            margin-left: -5px;
+            border-width: 0 1px 1px 0;
+        }
+
+        .label-bottom .label-card::before {
+            top: -6px;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 1px 0 0 1px;
         }
 
         .label-title {
-            color: #ff6b6b;
             font-weight: 700;
             font-size: 0.9rem;
             margin-bottom: 2px;
         }
 
         .label-desc {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
+            opacity: 0.7;
         }
 
-        .label-dot {
+        .label-number {
             position: absolute;
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 12px;
-            height: 12px;
-            background: #ff6b6b;
+            top: -8px;
+            width: 20px; height: 20px;
             border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
-            animation: pulse-dot 1.5s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
 
-        @keyframes pulse-dot {
-            0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
-            50% { transform: translateX(-50%) scale(1.3); opacity: 0.7; }
-        }
+        .label-left .label-number { right: -8px; }
+        .label-right .label-number { left: -8px; }
+        .label-top .label-number { right: -8px; }
+        .label-bottom .label-number { right: -8px; }
 
-        /* خط يربط التسمية بالجزء */
-        .label-line {
-            position: absolute;
-            bottom: -30px;
-            left: 50%;
-            width: 1px;
-            height: 30px;
-            background: linear-gradient(to bottom, rgba(255,107,107,0.8), transparent);
-            transform: translateX(-50%);
-        }
+        /* ألوان مختلفة لكل جزء */
+        .label-color-red { border-color: #e74c3c; }
+        .label-color-red .label-title { color: #e74c3c; }
+        .label-color-red .label-number { background: #e74c3c; }
+
+        .label-color-blue { border-color: #3498db; }
+        .label-color-blue .label-title { color: #3498db; }
+        .label-color-blue .label-number { background: #3498db; }
+
+        .label-color-green { border-color: #2ecc71; }
+        .label-color-green .label-title { color: #2ecc71; }
+        .label-color-green .label-number { background: #2ecc71; }
+
+        .label-color-orange { border-color: #f39c12; }
+        .label-color-orange .label-title { color: #f39c12; }
+        .label-color-orange .label-number { background: #f39c12; }
+
+        .label-color-purple { border-color: #9b59b6; }
+        .label-color-purple .label-title { color: #9b59b6; }
+        .label-color-purple .label-number { background: #9b59b6; }
+
+        .label-color-cyan { border-color: #1abc9c; }
+        .label-color-cyan .label-title { color: #1abc9c; }
+        .label-color-cyan .label-number { background: #1abc9c; }
+
+        .label-color-pink { border-color: #e91e63; }
+        .label-color-pink .label-title { color: #e91e63; }
+        .label-color-pink .label-number { background: #e91e63; }
+
+        .label-color-yellow { border-color: #f1c40f; }
+        .label-color-yellow .label-title { color: #f1c40f; }
+        .label-color-yellow .label-number { background: #f1c40f; }
 
         .loading-screen {
             position: fixed;
@@ -587,7 +655,9 @@
             .pulse-indicator { left: 10px; }
             .pulse-bar { height: 60px; }
             .modal-box { padding: 20px; }
-            .label-content { font-size: 0.75rem; padding: 6px 12px; }
+            .label-card { min-width: 100px; padding: 6px 10px; }
+            .label-title { font-size: 0.8rem; }
+            .label-desc { font-size: 0.65rem; }
         }
 
         @media (max-width: 576px) {
@@ -607,9 +677,12 @@
 
     <canvas id="three-canvas"></canvas>
 
-    <!-- ═══════════════════════════════════════════ -->
-    <!-- ═══ حاوية تسميات أجزاء القلب ═══ -->
-    <!-- ═══════════════════════════════════════════ -->
+    <!-- SVG للخطوط الرابطة -->
+    <svg class="label-line-svg" id="labelLinesSvg">
+        <!-- سيتم إضافة الخطوط ديناميكياً -->
+    </svg>
+
+    <!-- حاوية التسميات -->
     <div id="labelsContainer"></div>
 
     <div class="ui-layer top-bar">
@@ -830,38 +903,103 @@
         scene.add(gridHelper);
 
         // ============================================
-        // ═══ تسميات أجزاء القلب (Heart Labels) ═══
+        // ═══ تسميات أجزاء القلب - موزعة دائرياً ═══
         // ============================================
         let labelsVisible = true;
         let heartLabels = [];
 
-        // تعريف تسميات أجزاء القلب مع مواقعها
+        // تعريف تسميات أجزاء القلب مع مواقعها وألوانها
+        // المواقع تُوزع على محيط دائرة حول القلب
         const heartPartsData = [
-            { id: 'left-ventricle', name: 'البطين الأيسر', desc: 'Left Ventricle', position: new THREE.Vector3(-0.6, -0.4, 0.2) },
-            { id: 'right-ventricle', name: 'البطين الأيمن', desc: 'Right Ventricle', position: new THREE.Vector3(0.6, -0.4, 0.2) },
-            { id: 'left-atrium', name: 'الأذين الأيسر', desc: 'Left Atrium', position: new THREE.Vector3(-0.5, 0.8, 0.1) },
-            { id: 'right-atrium', name: 'الأذين الأيمن', desc: 'Right Atrium', position: new THREE.Vector3(0.5, 0.8, 0) },
-            { id: 'aorta', name: 'الشريان الأورطي', desc: 'Aorta', position: new THREE.Vector3(0.2, 1.8, 0.3) },
-            { id: 'pulmonary-artery', name: 'الشريان الرئوي', desc: 'Pulmonary Artery', position: new THREE.Vector3(0.5, 1.5, 0.2) },
-            { id: 'septum', name: 'الحاجز', desc: 'Septum', position: new THREE.Vector3(0, -0.1, 0) },
-            { id: 'apex', name: 'القمة', desc: 'Apex', position: new THREE.Vector3(0.1, -1.6, 0.1) }
+            { 
+                id: 'left-ventricle', 
+                name: 'البطين الأيسر', 
+                desc: 'Left Ventricle', 
+                position: new THREE.Vector3(-0.7, -0.5, 0.3),
+                color: 'red',
+                angle: 200  // زاوية التوزيع الدائري (درجات)
+            },
+            { 
+                id: 'right-ventricle', 
+                name: 'البطين الأيمن', 
+                desc: 'Right Ventricle', 
+                position: new THREE.Vector3(0.7, -0.5, 0.3),
+                color: 'blue',
+                angle: 340
+            },
+            { 
+                id: 'left-atrium', 
+                name: 'الأذين الأيسر', 
+                desc: 'Left Atrium', 
+                position: new THREE.Vector3(-0.5, 0.9, 0.2),
+                color: 'green',
+                angle: 140
+            },
+            { 
+                id: 'right-atrium', 
+                name: 'الأذين الأيمن', 
+                desc: 'Right Atrium', 
+                position: new THREE.Vector3(0.6, 0.8, 0.1),
+                color: 'orange',
+                angle: 40
+            },
+            { 
+                id: 'aorta', 
+                name: 'الشريان الأورطي', 
+                desc: 'Aorta', 
+                position: new THREE.Vector3(0.1, 1.9, 0.4),
+                color: 'purple',
+                angle: 90
+            },
+            { 
+                id: 'pulmonary-artery', 
+                name: 'الشريان الرئوي', 
+                desc: 'Pulmonary Artery', 
+                position: new THREE.Vector3(0.6, 1.6, 0.3),
+                color: 'cyan',
+                angle: 60
+            },
+            { 
+                id: 'septum', 
+                name: 'الحاجز', 
+                desc: 'Septum', 
+                position: new THREE.Vector3(0, -0.1, 0.1),
+                color: 'pink',
+                angle: 270
+            },
+            { 
+                id: 'apex', 
+                name: 'القمة', 
+                desc: 'Apex', 
+                position: new THREE.Vector3(0.1, -1.7, 0.2),
+                color: 'yellow',
+                angle: 290
+            }
         ];
 
-        // إنشاء عناصر HTML للتسميات
+        // إنشاء عناصر HTML للتسميات والخطوط
         function createLabels() {
             const container = document.getElementById('labelsContainer');
+            const svg = document.getElementById('labelLinesSvg');
             container.innerHTML = '';
+            svg.innerHTML = '';
 
-            heartLabels = heartPartsData.map(part => {
+            heartLabels = heartPartsData.map((part, index) => {
+                // إنشاء خط SVG
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('id', `line-${part.id}`);
+                line.setAttribute('stroke', getColorHex(part.color));
+                svg.appendChild(line);
+
+                // إنشاء التسمية
                 const labelEl = document.createElement('div');
-                labelEl.className = 'heart-label';
+                labelEl.className = `heart-label label-color-${part.color}`;
                 labelEl.id = `label-${part.id}`;
                 labelEl.innerHTML = `
-                    <div class="label-content">
+                    <div class="label-card">
+                        <div class="label-number">${index + 1}</div>
                         <div class="label-title">${part.name}</div>
                         <div class="label-desc">${part.desc}</div>
-                        <div class="label-dot"></div>
-                        <div class="label-line"></div>
                     </div>
                 `;
                 container.appendChild(labelEl);
@@ -869,12 +1007,29 @@
                 return {
                     ...part,
                     element: labelEl,
-                    worldPosition: part.position.clone()
+                    lineElement: line,
+                    worldPosition: part.position.clone(),
+                    screenPos: new THREE.Vector2(),
+                    labelPos: new THREE.Vector2()
                 };
             });
         }
 
-        // تحديث مواقع التسميات على الشاشة
+        function getColorHex(colorName) {
+            const colors = {
+                red: '#e74c3c',
+                blue: '#3498db',
+                green: '#2ecc71',
+                orange: '#f39c12',
+                purple: '#9b59b6',
+                cyan: '#1abc9c',
+                pink: '#e91e63',
+                yellow: '#f1c40f'
+            };
+            return colors[colorName] || '#ff6b6b';
+        }
+
+        // تحديث مواقع التسميات - توزيع دائري حول القلب
         function updateLabels() {
             if (!labelsVisible || !heartModel) return;
 
@@ -882,39 +1037,61 @@
             const cameraDirection = new THREE.Vector3();
             camera.getWorldDirection(cameraDirection);
 
-            heartLabels.forEach(label => {
+            // نصف قطر الدائرة التي تُوزع عليها التسميات (بعيد عن القلب)
+            const labelRadius = Math.min(window.innerWidth, window.innerHeight) * 0.35;
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            heartLabels.forEach((label, index) => {
                 // تحويل موقع الجزء من المجسم إلى الإحداثيات العالمية
                 tempV.copy(label.worldPosition);
-                
-                // تطبيق تحويلات المجسم (الموقع، الدوران، الحجم)
                 tempV.applyMatrix4(heartModel.matrixWorld);
 
-                // حساب اتجاه الجزء من الكاميرا
-                const toPart = tempV.clone().sub(camera.position).normalize();
-                
-                // حساب زاوية بين اتجاه الكاميرا واتجاه الجزء
-                const dotProduct = cameraDirection.dot(toPart);
-                
-                // التحقق إذا كان الجزء أمام الكاميرا (dotProduct > 0)
-                // والزاوية صغيرة بما يكفي (الجزء في مركز الرؤية تقريباً)
-                const isFacingCamera = dotProduct > 0.5;
-                
                 // تحويل إلى إحداثيات الشاشة
                 tempV.project(camera);
+                const partX = (tempV.x * 0.5 + 0.5) * window.innerWidth;
+                const partY = (-tempV.y * 0.5 + 0.5) * window.innerHeight;
 
-                const x = (tempV.x * 0.5 + 0.5) * window.innerWidth;
-                const y = (-tempV.y * 0.5 + 0.5) * window.innerHeight;
+                // التحقق إذا كان الجزء أمام الكاميرا
+                const toPart = tempV.clone().sub(camera.position).normalize();
+                const dotProduct = cameraDirection.dot(toPart);
+                const isFacingCamera = dotProduct > 0.3;
 
-                // التحقق من أن الجزء داخل الشاشة
-                const isOnScreen = x > 0 && x < window.innerWidth && y > 0 && y < window.innerHeight;
-
-                if (isFacingCamera && isOnScreen && tempV.z < 1) {
-                    label.element.style.left = `${x}px`;
-                    label.element.style.top = `${y}px`;
-                    label.element.classList.add('visible');
-                } else {
+                if (!isFacingCamera || tempV.z > 1) {
                     label.element.classList.remove('visible');
+                    label.lineElement.classList.remove('visible');
+                    return;
                 }
+
+                // حساب موقع التسمية على محيط الدائرة
+                const angleRad = (label.angle * Math.PI) / 180;
+                let labelX = centerX + Math.cos(angleRad) * labelRadius;
+                let labelY = centerY + Math.sin(angleRad) * labelRadius;
+
+                // ضبط المواقع لتجنب التداخل مع حواف الشاشة
+                const padding = 120;
+                labelX = Math.max(padding, Math.min(window.innerWidth - padding, labelX));
+                labelY = Math.max(padding, Math.min(window.innerHeight - padding, labelY));
+
+                // تحديد اتجاه التسمية (يسار/يمين/أعلى/أسفل)
+                let directionClass = 'label-right';
+                if (labelX < centerX - 50) directionClass = 'label-left';
+                else if (labelY < centerY - 50) directionClass = 'label-top';
+                else if (labelY > centerY + 50) directionClass = 'label-bottom';
+
+                label.element.className = `heart-label label-color-${label.color} ${directionClass}`;
+
+                // تحديث موقع التسمية
+                label.element.style.left = `${labelX}px`;
+                label.element.style.top = `${labelY}px`;
+                label.element.classList.add('visible');
+
+                // تحديث خط الربط
+                label.lineElement.setAttribute('x1', partX);
+                label.lineElement.setAttribute('y1', partY);
+                label.lineElement.setAttribute('x2', labelX);
+                label.lineElement.setAttribute('y2', labelY);
+                label.lineElement.classList.add('visible');
             });
         }
 
@@ -922,11 +1099,16 @@
             labelsVisible = !labelsVisible;
             document.getElementById('btnLabels').classList.toggle('active');
             
+            const svg = document.getElementById('labelLinesSvg');
+            
             heartLabels.forEach(label => {
                 if (!labelsVisible) {
                     label.element.classList.remove('visible');
+                    label.lineElement.classList.remove('visible');
                 }
             });
+            
+            svg.style.display = labelsVisible ? 'block' : 'none';
         };
 
         // ============================================
@@ -962,7 +1144,7 @@
                 const gltf = await loadModel('./models/heart_3d_3.glb');
                 heartModel = gltf.scene;
                 setupModel(heartModel);
-                createLabels(); // إنشاء التسميات بعد تحميل المجسم
+                createLabels();
                 updateModelInfo();
                 hideLoading();
             } catch (error) {
@@ -1246,7 +1428,7 @@
 
                         const gltf = await loadModel(url);
                         setupModel(gltf.scene);
-                        createLabels(); // إعادة إنشاء التسميات للمجسم الجديد
+                        createLabels();
                         updateModelInfo();
                         hideLoading();
                         closeLoadModal();
@@ -1278,7 +1460,7 @@
 
                     const gltf = await loadModel(urlInput);
                     setupModel(gltf.scene);
-                    createLabels(); // إعادة إنشاء التسميات
+                    createLabels();
                     updateModelInfo();
                     hideLoading();
                     closeLoadModal();
@@ -1379,9 +1561,9 @@
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
         if (isMobile()) {
-            // إخفاء التسميات على الجوال افتراضياً
             labelsVisible = false;
             document.getElementById('btnLabels').classList.remove('active');
+            document.getElementById('labelLinesSvg').style.display = 'none';
         }
     </script>
 </body>
