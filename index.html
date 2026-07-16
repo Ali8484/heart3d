@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>القلب البشري 3D - لافتات تفاعلية</title>
+    <title>القلب البشري 3D - لافتات تفاعلية قابلة للسحب</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -472,6 +472,7 @@
             .slider-group input[type="range"] { width: 80px; }
         }
     </style>
+<base target="_blank">
 </head>
 <body>
     <div class="loading-screen" id="loadingScreen">
@@ -997,131 +998,92 @@
         };
 
         // ============================================
-        // LOAD 3D MODEL (Procedural Heart)
+        // LOAD 3D MODEL (GLB)
         // ============================================
         let heartModel = null;
         let originalPositions = new Map();
         let explodeMode = false;
 
-        function createProceduralHeart() {
-            const heartGroup = new THREE.Group();
+        const loader = new GLTFLoader();
+        const loadingProgress = document.getElementById('loadingProgress');
 
-            // الجسم الرئيسي - كرة مشوّهة
-            const bodyGeo = new THREE.SphereGeometry(1, 32, 32);
-            const bodyMat = new THREE.MeshStandardMaterial({
-                color: 0xcc2222,
-                roughness: 0.4,
-                metalness: 0.3,
-                emissive: 0x330000,
-                emissiveIntensity: 0.2
+        function loadModel(url) {
+            return new Promise((resolve, reject) => {
+                loader.load(
+                    url,
+                    (gltf) => { resolve(gltf); },
+                    (xhr) => {
+                        if (xhr.total > 0) {
+                            const percent = Math.round((xhr.loaded / xhr.total) * 100);
+                            loadingProgress.textContent = percent + '%';
+                        } else {
+                            loadingProgress.textContent = 'جاري التحميل...';
+                        }
+                    },
+                    (error) => { reject(error); }
+                );
             });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.scale.set(0.9, 1.3, 0.8);
-            body.castShadow = true;
-            heartGroup.add(body);
+        }
 
-            // الأذين الأيسر
-            const laGeo = new THREE.SphereGeometry(0.5, 24, 24);
-            const la = new THREE.Mesh(laGeo, new THREE.MeshStandardMaterial({ color: 0xaa1111, roughness: 0.4, metalness: 0.3 }));
-            la.position.set(-0.5, 0.6, 0.1);
-            la.scale.set(0.9, 0.8, 0.7);
-            la.castShadow = true;
-            heartGroup.add(la);
+        async function initModel() {
+            try {
+                const gltf = await loadModel('./models/heart_3d_3.glb');
+                heartModel = gltf.scene;
+                setupModel(heartModel);
+                createLabels();
+                hideLoading();
+            } catch (error) {
+                console.error('خطأ في تحميل النموذج:', error);
+                showError('تعذر تحميل نموذج القلب. تأكد من وجود الملف في: models/heart_3d_3.glb');
+            }
+        }
 
-            // الأذين الأيمن
-            const ra = new THREE.Mesh(laGeo.clone(), new THREE.MeshStandardMaterial({ color: 0x991111, roughness: 0.4, metalness: 0.3 }));
-            ra.position.set(0.5, 0.6, 0.1);
-            ra.scale.set(0.9, 0.8, 0.7);
-            ra.castShadow = true;
-            heartGroup.add(ra);
+        function setupModel(model) {
+            if (heartModel) {
+                scene.remove(heartModel);
+                heartModel.traverse((child) => {
+                    if (child.isMesh) {
+                        child.geometry.dispose();
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(m => m.dispose());
+                        } else {
+                            child.material.dispose();
+                        }
+                    }
+                });
+            }
 
-            // البطين الأيسر (أكبر)
-            const lvGeo = new THREE.SphereGeometry(0.6, 24, 24);
-            const lv = new THREE.Mesh(lvGeo, new THREE.MeshStandardMaterial({ color: 0xbb1111, roughness: 0.4, metalness: 0.3 }));
-            lv.position.set(-0.35, -0.4, 0.15);
-            lv.scale.set(0.95, 1.1, 0.85);
-            lv.castShadow = true;
-            heartGroup.add(lv);
+            originalPositions.clear();
+            explodeMode = false;
+            document.getElementById('btnExplode').classList.remove('active');
 
-            // البطين الأيمن
-            const rv = new THREE.Mesh(lvGeo.clone(), new THREE.MeshStandardMaterial({ color: 0x991111, roughness: 0.4, metalness: 0.3 }));
-            rv.position.set(0.35, -0.3, 0.15);
-            rv.scale.set(0.9, 1.0, 0.8);
-            rv.castShadow = true;
-            heartGroup.add(rv);
-
-            // الشريان الأورطي (أنبوب علوي)
-            const aortaGeo = new THREE.CylinderGeometry(0.15, 0.2, 1.2, 16);
-            const aorta = new THREE.Mesh(aortaGeo, new THREE.MeshStandardMaterial({ color: 0xdd3333, roughness: 0.3, metalness: 0.5 }));
-            aorta.position.set(0, 1.6, 0.1);
-            aorta.rotation.z = 0.1;
-            aorta.castShadow = true;
-            heartGroup.add(aorta);
-
-            // الشريان الرئوي
-            const paGeo = new THREE.CylinderGeometry(0.12, 0.15, 0.8, 16);
-            const pa = new THREE.Mesh(paGeo, new THREE.MeshStandardMaterial({ color: 0x3366cc, roughness: 0.3, metalness: 0.4 }));
-            pa.position.set(0.4, 1.4, 0.2);
-            pa.rotation.z = -0.3;
-            pa.castShadow = true;
-            heartGroup.add(pa);
-
-            // الوريد الأجوف العلوي
-            const svcGeo = new THREE.CylinderGeometry(0.1, 0.12, 0.7, 16);
-            const svc = new THREE.Mesh(svcGeo, new THREE.MeshStandardMaterial({ color: 0x4422aa, roughness: 0.3, metalness: 0.4 }));
-            svc.position.set(-0.4, 1.4, 0.0);
-            svc.rotation.z = 0.2;
-            svc.castShadow = true;
-            heartGroup.add(svc);
-
-            // الوريد الأجوف السفلي
-            const ivc = new THREE.Mesh(svcGeo.clone(), new THREE.MeshStandardMaterial({ color: 0x5533bb, roughness: 0.3, metalness: 0.4 }));
-            ivc.position.set(0.15, -1.1, 0.05);
-            ivc.scale.set(0.9, 0.8, 0.9);
-            ivc.castShadow = true;
-            heartGroup.add(ivc);
-
-            // الشرايين التاجية (أنابيب رفيعة)
-            const coronaryGeo = new THREE.TorusGeometry(0.6, 0.03, 8, 32, Math.PI);
-            const leftCoronary = new THREE.Mesh(coronaryGeo, new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.3, metalness: 0.5 }));
-            leftCoronary.position.set(-0.2, 0.3, 0.55);
-            leftCoronary.rotation.x = Math.PI / 2;
-            leftCoronary.rotation.z = 0.3;
-            heartGroup.add(leftCoronary);
-
-            const rightCoronary = new THREE.Mesh(coronaryGeo.clone(), new THREE.MeshStandardMaterial({ color: 0xff8800, roughness: 0.3, metalness: 0.5 }));
-            rightCoronary.position.set(0.2, 0.2, 0.55);
-            rightCoronary.rotation.x = Math.PI / 2;
-            rightCoronary.rotation.z = -0.3;
-            heartGroup.add(rightCoronary);
-
-            // القمة
-            const apexGeo = new THREE.ConeGeometry(0.2, 0.4, 16);
-            const apex = new THREE.Mesh(apexGeo, new THREE.MeshStandardMaterial({ color: 0xcc1144, roughness: 0.4, metalness: 0.3 }));
-            apex.position.set(-0.15, -1.5, 0.25);
-            apex.rotation.z = 0.2;
-            apex.castShadow = true;
-            heartGroup.add(apex);
-
-            // توسيط وتكبير
-            const box = new THREE.Box3().setFromObject(heartGroup);
-            const center = box.getCenter(new THREE.Vector3());
-            heartGroup.position.sub(center);
-            const size = box.getSize(new THREE.Vector3());
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 2.0 / maxDim;
-            heartGroup.scale.setScalar(scale);
-
-            heartGroup.traverse((child) => {
+            model.traverse((child) => {
                 if (child.isMesh) {
                     child.castShadow = true;
                     child.receiveShadow = true;
                     saveOriginalPosition(child);
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(m => { m.needsUpdate = true; });
+                        } else {
+                            child.material.needsUpdate = true;
+                        }
+                    }
                 }
             });
 
-            scene.add(heartGroup);
-            heartModel = heartGroup;
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            model.position.sub(center);
+
+            const desiredSize = 2.0;
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = desiredSize / maxDim;
+            model.scale.setScalar(scale);
+
+            scene.add(model);
+            heartModel = model;
         }
 
         function saveOriginalPosition(mesh) {
@@ -1135,6 +1097,13 @@
             setTimeout(() => {
                 document.getElementById('loadingScreen').classList.add('hidden');
             }, 500);
+        }
+
+        function showError(msg) {
+            const loadingProgress = document.getElementById('loadingProgress');
+            loadingProgress.textContent = 'فشل التحميل!';
+            loadingProgress.style.color = '#ff4444';
+            document.querySelector('.loading-text').textContent = msg;
         }
 
         // ============================================
@@ -1173,7 +1142,7 @@
         // ZOOM SLIDER
         // ============================================
         const zoomSlider = document.getElementById('zoomSlider');
-        
+
         zoomSlider.addEventListener('input', (e) => {
             const dist = parseFloat(e.target.value);
             const direction = camera.position.clone().sub(controls.target).normalize();
@@ -1312,9 +1281,7 @@
         // ============================================
         // INIT
         // ============================================
-        createProceduralHeart();
-        createLabels();
-        hideLoading();
+        initModel();
         animate();
     </script>
 </body>
