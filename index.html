@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>عرض القلب البشري 3D - دوران الكاميرا حول المجسم</title>
+    <title>عرض القلب البشري 3D - تسميات الأجزاء</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -122,14 +122,6 @@
             box-shadow: 0 0 10px rgba(255,107,107,0.5);
         }
 
-        .slider-group input[type="range"]::-moz-range-thumb {
-            width: 16px; height: 16px;
-            background: #ff6b6b;
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-        }
-
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -166,8 +158,209 @@
         }
 
         /* ═══════════════════════════════════════════ */
-        /* ═══ نافذة تحميل المجسم (Modal) ═══ */
+        /* ═══ تسميات أجزاء القلب (Labels) ═══ */
         /* ═══════════════════════════════════════════ */
+        .heart-label {
+            position: fixed;
+            z-index: 20;
+            pointer-events: none;
+            transform: translate(-50%, -100%);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .heart-label.visible {
+            opacity: 1;
+            transform: translate(-50%, -120%);
+        }
+
+        .label-content {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 107, 107, 0.5);
+            border-radius: 12px;
+            padding: 8px 16px;
+            color: #fff;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 107, 107, 0.2);
+            position: relative;
+        }
+
+        .label-content::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid rgba(255, 107, 107, 0.5);
+        }
+
+        .label-title {
+            color: #ff6b6b;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .label-desc {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.75rem;
+        }
+
+        .label-dot {
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+            50% { transform: translateX(-50%) scale(1.3); opacity: 0.7; }
+        }
+
+        /* خط يربط التسمية بالجزء */
+        .label-line {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            width: 1px;
+            height: 30px;
+            background: linear-gradient(to bottom, rgba(255,107,107,0.8), transparent);
+            transform: translateX(-50%);
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--dark-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.8s;
+        }
+
+        .loading-screen.hidden { opacity: 0; pointer-events: none; }
+
+        .heart-loader {
+            width: 60px; height: 60px;
+            position: relative;
+            animation: heartbeat 1s ease-in-out infinite;
+        }
+
+        .heart-loader::before,
+        .heart-loader::after {
+            content: '';
+            position: absolute;
+            width: 30px; height: 48px;
+            background: #ff6b6b;
+            border-radius: 30px 30px 0 0;
+            transform: rotate(-45deg);
+            left: 8px;
+        }
+
+        .heart-loader::after {
+            left: 22px;
+            transform: rotate(45deg);
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            color: rgba(255,255,255,0.6);
+            font-size: 1rem;
+        }
+
+        .loading-progress {
+            margin-top: 10px;
+            color: #ff6b6b;
+            font-size: 0.9rem;
+        }
+
+        .pulse-indicator {
+            position: fixed;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .pulse-bar {
+            width: 4px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .pulse-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, #dc3545, #ff6b6b);
+            border-radius: 2px;
+            transition: height 0.1s;
+        }
+
+        .pulse-label {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        .model-info {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,107,107,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            font-size: 0.85rem;
+            max-width: 200px;
+            z-index: 10;
+            display: none;
+        }
+
+        .model-info.show { display: block; }
+
+        .model-info h6 {
+            color: #ff6b6b;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .model-info p {
+            margin-bottom: 4px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* نافذة تحميل المجسم */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -195,7 +388,6 @@
             max-width: 450px;
             transform: translateY(20px);
             transition: transform 0.3s ease;
-            box-shadow: 0 0 40px rgba(255,107,107,0.1);
         }
 
         .modal-overlay.show .modal-box {
@@ -388,125 +580,6 @@
             background: rgba(255,255,255,0.1);
         }
 
-        .loading-screen {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--dark-bg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            transition: opacity 0.8s;
-        }
-
-        .loading-screen.hidden { opacity: 0; pointer-events: none; }
-
-        .heart-loader {
-            width: 60px; height: 60px;
-            position: relative;
-            animation: heartbeat 1s ease-in-out infinite;
-        }
-
-        .heart-loader::before,
-        .heart-loader::after {
-            content: '';
-            position: absolute;
-            width: 30px; height: 48px;
-            background: #ff6b6b;
-            border-radius: 30px 30px 0 0;
-            transform: rotate(-45deg);
-            left: 8px;
-        }
-
-        .heart-loader::after {
-            left: 22px;
-            transform: rotate(45deg);
-        }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-        }
-
-        .loading-text {
-            margin-top: 20px;
-            color: rgba(255,255,255,0.6);
-            font-size: 1rem;
-        }
-
-        .loading-progress {
-            margin-top: 10px;
-            color: #ff6b6b;
-            font-size: 0.9rem;
-        }
-
-        .pulse-indicator {
-            position: fixed;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            z-index: 10;
-        }
-
-        .pulse-bar {
-            width: 4px;
-            height: 100px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .pulse-fill {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            background: linear-gradient(to top, #dc3545, #ff6b6b);
-            border-radius: 2px;
-            transition: height 0.1s;
-        }
-
-        .pulse-label {
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.5);
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-        }
-
-        .model-info {
-            position: fixed;
-            top: 80px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,107,107,0.3);
-            border-radius: 12px;
-            padding: 15px;
-            color: white;
-            font-size: 0.85rem;
-            max-width: 200px;
-            z-index: 10;
-            display: none;
-        }
-
-        .model-info.show { display: block; }
-
-        .model-info h6 {
-            color: #ff6b6b;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-
-        .model-info p {
-            margin-bottom: 4px;
-            color: rgba(255,255,255,0.7);
-        }
-
         @media (max-width: 768px) {
             .brand { font-size: 1rem; }
             .controls-row { gap: 10px; }
@@ -514,6 +587,7 @@
             .pulse-indicator { left: 10px; }
             .pulse-bar { height: 60px; }
             .modal-box { padding: 20px; }
+            .label-content { font-size: 0.75rem; padding: 6px 12px; }
         }
 
         @media (max-width: 576px) {
@@ -532,6 +606,11 @@
     </div>
 
     <canvas id="three-canvas"></canvas>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- ═══ حاوية تسميات أجزاء القلب ═══ -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="labelsContainer"></div>
 
     <div class="ui-layer top-bar">
         <div class="brand">
@@ -571,6 +650,10 @@
                 <i class="bi bi-arrow-clockwise"></i>
                 دوران تلقائي
             </button>
+            <button class="btn-action" id="btnLabels" onclick="toggleLabels()">
+                <i class="bi bi-tags"></i>
+                التسميات
+            </button>
             <button class="btn-action" id="btnPulse" onclick="togglePulse()">
                 <i class="bi bi-heart-pulse"></i>
                 نبض
@@ -583,7 +666,6 @@
                 <i class="bi bi-box-seam"></i>
                 تفكيك
             </button>
-            <!-- ═══ زر تحميل مجسم جديد ═══ -->
             <button class="btn-action" id="btnLoadModel" onclick="openLoadModal()">
                 <i class="bi bi-upload"></i>
                 تحميل مجسم
@@ -595,9 +677,7 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════ -->
-    <!-- ═══ نافذة تحميل المجسم (Modal) ═══ -->
-    <!-- ═══════════════════════════════════════════ -->
+    <!-- نافذة تحميل المجسم -->
     <div class="modal-overlay" id="loadModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -609,9 +689,7 @@
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
-
             <div class="modal-body">
-                <!-- رفع ملف -->
                 <div class="file-input-wrapper">
                     <input type="file" id="fileInput" accept=".glb,.gltf" onchange="handleFileSelect(event)">
                     <div class="file-drop-zone" id="dropZone">
@@ -621,15 +699,11 @@
                     </div>
                 </div>
                 <div class="file-name" id="fileName"></div>
-
                 <div class="modal-divider">أو</div>
-
-                <!-- رابط URL -->
                 <div class="url-input-group">
                     <label><i class="bi bi-link-45deg"></i> رابط الملف (URL)</label>
                     <input type="text" id="urlInput" placeholder="https://example.com/model.glb" onkeydown="if(event.key==='Enter') loadFromUrl()">
                 </div>
-
                 <div class="modal-actions">
                     <button class="modal-btn modal-btn-secondary" onclick="closeLoadModal()">إلغاء</button>
                     <button class="modal-btn modal-btn-primary" id="btnConfirmLoad" onclick="loadFromUrl()" disabled>
@@ -656,7 +730,7 @@
         import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══ إعدادات الألوان - يمكنك تعديلها هنا ═══
+        // ═══ إعدادات الألوان ═══
         // ═══════════════════════════════════════════════════════════════
         const SCENE_BG_COLOR = 0x33B1D9;
         const FOG_COLOR = 0x33B1D9;
@@ -664,7 +738,6 @@
         const GROUND_OPACITY = 0.0;
         const GRID_COLOR_CENTER = 0x4a4a6a;
         const GRID_COLOR_LINES = 0x2a2a4a;
-        // ═══════════════════════════════════════════════════════════════
 
         // ============================================
         // SCENE SETUP
@@ -757,6 +830,106 @@
         scene.add(gridHelper);
 
         // ============================================
+        // ═══ تسميات أجزاء القلب (Heart Labels) ═══
+        // ============================================
+        let labelsVisible = true;
+        let heartLabels = [];
+
+        // تعريف تسميات أجزاء القلب مع مواقعها
+        const heartPartsData = [
+            { id: 'left-ventricle', name: 'البطين الأيسر', desc: 'Left Ventricle', position: new THREE.Vector3(-0.6, -0.4, 0.2) },
+            { id: 'right-ventricle', name: 'البطين الأيمن', desc: 'Right Ventricle', position: new THREE.Vector3(0.6, -0.4, 0.2) },
+            { id: 'left-atrium', name: 'الأذين الأيسر', desc: 'Left Atrium', position: new THREE.Vector3(-0.5, 0.8, 0.1) },
+            { id: 'right-atrium', name: 'الأذين الأيمن', desc: 'Right Atrium', position: new THREE.Vector3(0.5, 0.8, 0) },
+            { id: 'aorta', name: 'الشريان الأورطي', desc: 'Aorta', position: new THREE.Vector3(0.2, 1.8, 0.3) },
+            { id: 'pulmonary-artery', name: 'الشريان الرئوي', desc: 'Pulmonary Artery', position: new THREE.Vector3(0.5, 1.5, 0.2) },
+            { id: 'septum', name: 'الحاجز', desc: 'Septum', position: new THREE.Vector3(0, -0.1, 0) },
+            { id: 'apex', name: 'القمة', desc: 'Apex', position: new THREE.Vector3(0.1, -1.6, 0.1) }
+        ];
+
+        // إنشاء عناصر HTML للتسميات
+        function createLabels() {
+            const container = document.getElementById('labelsContainer');
+            container.innerHTML = '';
+
+            heartLabels = heartPartsData.map(part => {
+                const labelEl = document.createElement('div');
+                labelEl.className = 'heart-label';
+                labelEl.id = `label-${part.id}`;
+                labelEl.innerHTML = `
+                    <div class="label-content">
+                        <div class="label-title">${part.name}</div>
+                        <div class="label-desc">${part.desc}</div>
+                        <div class="label-dot"></div>
+                        <div class="label-line"></div>
+                    </div>
+                `;
+                container.appendChild(labelEl);
+
+                return {
+                    ...part,
+                    element: labelEl,
+                    worldPosition: part.position.clone()
+                };
+            });
+        }
+
+        // تحديث مواقع التسميات على الشاشة
+        function updateLabels() {
+            if (!labelsVisible || !heartModel) return;
+
+            const tempV = new THREE.Vector3();
+            const cameraDirection = new THREE.Vector3();
+            camera.getWorldDirection(cameraDirection);
+
+            heartLabels.forEach(label => {
+                // تحويل موقع الجزء من المجسم إلى الإحداثيات العالمية
+                tempV.copy(label.worldPosition);
+                
+                // تطبيق تحويلات المجسم (الموقع، الدوران، الحجم)
+                tempV.applyMatrix4(heartModel.matrixWorld);
+
+                // حساب اتجاه الجزء من الكاميرا
+                const toPart = tempV.clone().sub(camera.position).normalize();
+                
+                // حساب زاوية بين اتجاه الكاميرا واتجاه الجزء
+                const dotProduct = cameraDirection.dot(toPart);
+                
+                // التحقق إذا كان الجزء أمام الكاميرا (dotProduct > 0)
+                // والزاوية صغيرة بما يكفي (الجزء في مركز الرؤية تقريباً)
+                const isFacingCamera = dotProduct > 0.5;
+                
+                // تحويل إلى إحداثيات الشاشة
+                tempV.project(camera);
+
+                const x = (tempV.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (-tempV.y * 0.5 + 0.5) * window.innerHeight;
+
+                // التحقق من أن الجزء داخل الشاشة
+                const isOnScreen = x > 0 && x < window.innerWidth && y > 0 && y < window.innerHeight;
+
+                if (isFacingCamera && isOnScreen && tempV.z < 1) {
+                    label.element.style.left = `${x}px`;
+                    label.element.style.top = `${y}px`;
+                    label.element.classList.add('visible');
+                } else {
+                    label.element.classList.remove('visible');
+                }
+            });
+        }
+
+        window.toggleLabels = function() {
+            labelsVisible = !labelsVisible;
+            document.getElementById('btnLabels').classList.toggle('active');
+            
+            heartLabels.forEach(label => {
+                if (!labelsVisible) {
+                    label.element.classList.remove('visible');
+                }
+            });
+        };
+
+        // ============================================
         // LOAD 3D MODEL
         // ============================================
         let heartModel = null;
@@ -789,6 +962,7 @@
                 const gltf = await loadModel('./models/heart_3d_3.glb');
                 heartModel = gltf.scene;
                 setupModel(heartModel);
+                createLabels(); // إنشاء التسميات بعد تحميل المجسم
                 updateModelInfo();
                 hideLoading();
             } catch (error) {
@@ -798,7 +972,6 @@
         }
 
         function setupModel(model) {
-            // إزالة المجسم القديم إن وجد
             if (heartModel) {
                 scene.remove(heartModel);
                 heartModel.traverse((child) => {
@@ -1056,7 +1229,6 @@
             const btnConfirm = document.getElementById('btnConfirmLoad');
 
             if (selectedFile) {
-                // تحميل من ملف محلي
                 btnConfirm.disabled = true;
                 btnConfirm.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري التحميل...';
 
@@ -1074,11 +1246,11 @@
 
                         const gltf = await loadModel(url);
                         setupModel(gltf.scene);
+                        createLabels(); // إعادة إنشاء التسميات للمجسم الجديد
                         updateModelInfo();
                         hideLoading();
                         closeLoadModal();
 
-                        // تنظيف
                         URL.revokeObjectURL(url);
                         btnConfirm.innerHTML = '<i class="bi bi-download"></i> تحميل';
                     } catch (error) {
@@ -1091,7 +1263,6 @@
                 };
                 reader.readAsArrayBuffer(selectedFile);
             } else if (urlInput) {
-                // تحميل من رابط
                 if (!urlInput.match(/\.(glb|gltf)(\?.*)?$/i)) {
                     alert('الرابط يجب أن ينتهي بـ .glb أو .gltf');
                     return;
@@ -1107,6 +1278,7 @@
 
                     const gltf = await loadModel(urlInput);
                     setupModel(gltf.scene);
+                    createLabels(); // إعادة إنشاء التسميات
                     updateModelInfo();
                     hideLoading();
                     closeLoadModal();
@@ -1121,7 +1293,7 @@
             }
         };
 
-        // Drag & Drop للنافذة
+        // Drag & Drop
         const dropZone = document.getElementById('dropZone');
 
         dropZone.addEventListener('dragover', (e) => {
@@ -1144,7 +1316,6 @@
             }
         });
 
-        // إغلاق النافذة بالنقر خارجها
         document.getElementById('loadModal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 closeLoadModal();
@@ -1172,6 +1343,9 @@
                 document.getElementById('pulseFill').style.height = pulseHeight + '%';
                 heartLight.intensity = 1.0 + Math.sin(pulseTime) * 0.4;
             }
+
+            // تحديث مواقع التسميات في كل إطار
+            updateLabels();
 
             updateZoomSlider();
 
@@ -1205,7 +1379,9 @@
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
         if (isMobile()) {
-            document.getElementById('touchPad').style.display = 'flex';
+            // إخفاء التسميات على الجوال افتراضياً
+            labelsVisible = false;
+            document.getElementById('btnLabels').classList.remove('active');
         }
     </script>
 </body>
