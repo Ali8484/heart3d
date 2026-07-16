@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>القلب البشري 3D - لافتات تفاعلية قابلة للسحب</title>
+    <title>القلب البشري 3D - تسميات تفاعلية</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -11,9 +11,7 @@
     <style>
         :root {
             --primary-color: #dc3545;
-            --accent-color: #6610f2;
             --dark-bg: #0a0a1a;
-            --card-bg: #111122;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -21,7 +19,7 @@
         body {
             background: linear-gradient(135deg, var(--dark-bg) 0%, #1a0a1a 100%);
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #fff;
         }
@@ -71,60 +69,17 @@
 
         .controls-panel {
             bottom: 0; left: 0; right: 0;
-            padding: 20px;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            padding: 15px;
+            background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
-        }
-
-        .controls-row {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            pointer-events: auto;
-            width: 100%;
-        }
-
-        .slider-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .slider-group label {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.6);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .slider-group input[type="range"] {
-            width: 150px;
-            -webkit-appearance: none;
-            appearance: none;
-            height: 4px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 2px;
-            outline: none;
-        }
-
-        .slider-group input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px; height: 16px;
-            background: #ff6b6b;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(255,107,107,0.5);
+            gap: 10px;
         }
 
         .action-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             pointer-events: auto;
             flex-wrap: wrap;
             justify-content: center;
@@ -134,15 +89,15 @@
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
             color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 0.9rem;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.3s;
             backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .btn-action:hover {
@@ -163,21 +118,29 @@
             transform: none;
         }
 
+        .btn-save {
+            background: rgba(39,174,96,0.3) !important;
+            border-color: rgba(39,174,96,0.5) !important;
+        }
+
+        .btn-save:hover {
+            background: rgba(39,174,96,0.5) !important;
+        }
+
         /* ═══════════════════════════════════════════ */
-        /* ═══ لافتات ثلاثية الأبعاد - قابلة للسحب ═══ */
+        /* ═══ لافتات التسمية - قابلة للسحب ═══ */
         /* ═══════════════════════════════════════════ */
         .heart-label {
             position: fixed;
             z-index: 20;
             pointer-events: auto;
             opacity: 0;
-            transition: opacity 0.4s ease, transform 0.15s ease;
-            display: flex;
-            align-items: center;
-            gap: 0;
+            transition: opacity 0.3s ease, transform 0.1s ease;
             cursor: grab;
             user-select: none;
             touch-action: none;
+            display: flex;
+            align-items: center;
         }
 
         .heart-label.visible {
@@ -186,165 +149,133 @@
 
         .heart-label:active {
             cursor: grabbing;
-            transform: scale(1.05);
+            transform: scale(1.03);
         }
 
         .heart-label.dragging {
             z-index: 1000;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.8);
         }
 
         .heart-label.locked {
             cursor: default;
-            border-style: dashed;
-            opacity: 0.9;
+            opacity: 0.85;
         }
 
         .heart-label.locked:active {
             transform: none;
         }
 
-        .label-line-svg {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 19;
-            pointer-events: none;
-            overflow: visible;
-        }
-
-        .label-line-svg line {
-            stroke-width: 2;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            stroke-linecap: round;
-        }
-
-        .label-line-svg line.visible {
-            opacity: 0.8;
-        }
-
-        .label-line-svg line.hidden {
-            opacity: 0;
+        .heart-label.locked .label-card {
+            border-style: dashed;
         }
 
         .label-card {
-            background: rgba(10, 10, 30, 0.92);
-            backdrop-filter: blur(12px);
+            background: rgba(10, 10, 30, 0.95);
+            backdrop-filter: blur(15px);
             border: 2px solid;
-            border-radius: 12px;
-            padding: 10px 16px;
+            border-radius: 10px;
+            padding: 8px 14px;
             color: #fff;
             white-space: nowrap;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.6);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             position: relative;
-            min-width: 160px;
+            min-width: 140px;
             text-align: center;
-        }
-
-        .label-card::before {
-            content: '';
-            position: absolute;
-            width: 12px; height: 12px;
-            background: inherit;
-            border: inherit;
-            border-width: 0 0 2px 2px;
-        }
-
-        .label-left .label-card::before {
-            right: -7px;
-            top: 50%;
-            margin-top: -6px;
-            border-width: 2px 2px 0 0;
-            transform: rotate(45deg);
-        }
-
-        .label-right .label-card::before {
-            left: -7px;
-            top: 50%;
-            margin-top: -6px;
-            border-width: 0 0 2px 2px;
-            transform: rotate(45deg);
-        }
-
-        .label-top .label-card::before {
-            bottom: -7px;
-            left: 50%;
-            margin-left: -6px;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-
-        .label-bottom .label-card::before {
-            top: -7px;
-            left: 50%;
-            margin-left: -6px;
-            border-width: 2px 0 0 2px;
-            transform: rotate(45deg);
+            font-size: 0.9rem;
         }
 
         .label-title {
             font-weight: 700;
-            font-size: 1rem;
-            margin-bottom: 3px;
-        }
-
-        .label-desc {
-            font-size: 0.75rem;
-            opacity: 0.8;
-            font-style: italic;
+            font-size: 0.95rem;
+            margin-bottom: 2px;
         }
 
         .label-number {
             position: absolute;
-            top: -10px;
-            width: 24px; height: 24px;
+            top: -8px;
+            width: 20px; height: 20px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 700;
             color: #fff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
 
-        .label-left .label-number { right: -10px; }
-        .label-right .label-number { left: -10px; }
-        .label-top .label-number { right: -10px; }
-        .label-bottom .label-number { right: -10px; }
-
-        .label-color-red { border-color: #c0392b; }
+        .label-color-red { border-color: #e74c3c; }
         .label-color-red .label-title { color: #e74c3c; }
-        .label-color-red .label-number { background: #c0392b; }
+        .label-color-red .label-number { background: #e74c3c; right: -8px; }
 
-        .label-color-blue { border-color: #2980b9; }
+        .label-color-blue { border-color: #3498db; }
         .label-color-blue .label-title { color: #3498db; }
-        .label-color-blue .label-number { background: #2980b9; }
+        .label-color-blue .label-number { background: #3498db; left: -8px; }
 
-        .label-color-darkred { border-color: #922b21; }
-        .label-color-darkred .label-title { color: #c0392b; }
-        .label-color-darkred .label-number { background: #922b21; }
+        .label-color-darkblue { border-color: #2980b9; }
+        .label-color-darkblue .label-title { color: #3498db; }
+        .label-color-darkblue .label-number { background: #2980b9; left: -8px; }
 
-        .label-color-gold { border-color: #b7950b; }
+        .label-color-gold { border-color: #f1c40f; }
         .label-color-gold .label-title { color: #f1c40f; }
-        .label-color-gold .label-number { background: #b7950b; }
+        .label-color-gold .label-number { background: #f39c12; right: -8px; }
 
-        .label-color-orange { border-color: #d35400; }
+        .label-color-orange { border-color: #e67e22; }
         .label-color-orange .label-title { color: #e67e22; }
-        .label-color-orange .label-number { background: #d35400; }
+        .label-color-orange .label-number { background: #d35400; left: -8px; }
 
-        .label-color-purple { border-color: #7d3c98; }
+        .label-color-purple { border-color: #9b59b6; }
         .label-color-purple .label-title { color: #9b59b6; }
-        .label-color-purple .label-number { background: #7d3c98; }
+        .label-color-purple .label-number { background: #8e44ad; right: -8px; }
 
-        .label-color-teal { border-color: #117a65; }
-        .label-color-teal .label-title { color: #1abc9c; }
-        .label-color-teal .label-number { background: #117a65; }
-
-        .label-color-pink { border-color: #c2185b; }
+        .label-color-pink { border-color: #e91e63; }
         .label-color-pink .label-title { color: #e91e63; }
-        .label-color-pink .label-number { background: #c2185b; }
+        .label-color-pink .label-number { background: #c2185b; left: -8px; }
+
+        /* ═══════════════════════════════════════════ */
+        /* ═══ خطوط التأشير والأسهم ═══ */
+        /* ═══════════════════════════════════════════ */
+        .label-svg-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 18;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        .label-svg-overlay line {
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .label-svg-overlay line.visible {
+            opacity: 0.85;
+        }
+
+        .label-svg-overlay line.hidden {
+            opacity: 0;
+        }
+
+        .label-svg-overlay circle.dot {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .label-svg-overlay circle.dot.visible {
+            opacity: 1;
+        }
+
+        .label-svg-overlay polygon.arrow-head {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .label-svg-overlay polygon.arrow-head.visible {
+            opacity: 0.85;
+        }
 
         .loading-screen {
             position: fixed;
@@ -413,6 +344,7 @@
             opacity: 0;
             transition: opacity 0.5s;
             pointer-events: none;
+            white-space: nowrap;
         }
 
         .save-status.show { opacity: 1; }
@@ -456,20 +388,9 @@
 
         @media (max-width: 768px) {
             .brand { font-size: 1rem; }
-            .controls-row { gap: 10px; }
-            .slider-group input[type="range"] { width: 100px; }
-            .pulse-indicator { left: 10px; }
-            .pulse-bar { height: 60px; }
-            .label-card { min-width: 120px; padding: 8px 12px; }
-            .label-title { font-size: 0.85rem; }
-            .label-desc { font-size: 0.7rem; }
-            .btn-action { padding: 8px 14px; font-size: 0.8rem; }
-        }
-
-        @media (max-width: 576px) {
-            .controls-panel { padding: 10px; }
-            .btn-action { padding: 8px 14px; font-size: 0.8rem; }
-            .slider-group input[type="range"] { width: 80px; }
+            .btn-action { padding: 6px 12px; font-size: 0.75rem; }
+            .label-card { min-width: 110px; padding: 6px 10px; }
+            .label-title { font-size: 0.8rem; }
         }
     </style>
 <base target="_blank">
@@ -483,8 +404,8 @@
 
     <canvas id="three-canvas"></canvas>
 
-    <!-- SVG للخطوط الرابطة -->
-    <svg class="label-line-svg" id="labelLinesSvg"></svg>
+    <!-- SVG للخطوط والأسهم والنقاط -->
+    <svg class="label-svg-overlay" id="labelSvgOverlay"></svg>
 
     <!-- حاوية اللافتات -->
     <div id="labelsContainer"></div>
@@ -502,7 +423,7 @@
 
     <div class="save-status" id="saveStatus">
         <i class="bi bi-check-circle-fill me-1"></i>
-        تم حفظ مواقع اللافتات بنجاح!
+        تم حفظ مواقع التسميات بنجاح!
     </div>
 
     <div class="ui-layer pulse-indicator">
@@ -513,21 +434,14 @@
     </div>
 
     <div class="ui-layer controls-panel">
-        <div class="controls-row">
-            <div class="slider-group">
-                <label><i class="bi bi-zoom-in"></i> التكبير</label>
-                <input type="range" id="zoomSlider" min="2" max="50" value="8" step="0.1">
-            </div>
-        </div>
-
         <div class="action-buttons">
             <button class="btn-action" id="btnAutoRotate" onclick="toggleAutoRotate()">
                 <i class="bi bi-arrow-clockwise"></i>
-                دوران تلقائي
+                دوران
             </button>
             <button class="btn-action active" id="btnLabels" onclick="toggleLabels()">
                 <i class="bi bi-tags"></i>
-                اللافتات
+                التسميات
             </button>
             <button class="btn-action" id="btnPulse" onclick="togglePulse()">
                 <i class="bi bi-heart-pulse"></i>
@@ -535,7 +449,7 @@
             </button>
             <button class="btn-action" id="btnWireframe" onclick="toggleWireframe()">
                 <i class="bi bi-grid-3x3"></i>
-                هيكل سلكي
+                سلكي
             </button>
             <button class="btn-action" id="btnExplode" onclick="toggleExplode()">
                 <i class="bi bi-box-seam"></i>
@@ -543,9 +457,9 @@
             </button>
             <button class="btn-action" id="btnResetLabels" onclick="resetLabels()">
                 <i class="bi bi-arrow-counterclockwise"></i>
-                إعادة اللافتات
+                إعادة التسميات
             </button>
-            <button class="btn-action" id="btnSave" onclick="saveLabels()" style="background: rgba(39,174,96,0.3); border-color: rgba(39,174,96,0.5);">
+            <button class="btn-action btn-save" id="btnSave" onclick="saveLabels()">
                 <i class="bi bi-save"></i>
                 حفظ المواقع
             </button>
@@ -572,22 +486,12 @@
         import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══ إعدادات الألوان ═══
-        // ═══════════════════════════════════════════════════════════════
-        const SCENE_BG_COLOR = 0x33B1D9;
-        const FOG_COLOR = 0x33B1D9;
-        const GROUND_COLOR = 0x16213e;
-        const GROUND_OPACITY = 0.0;
-        const GRID_COLOR_CENTER = 0x4a4a6a;
-        const GRID_COLOR_LINES = 0x2a2a4a;
-
-        // ============================================
         // SCENE SETUP
-        // ============================================
+        // ═══════════════════════════════════════════════════════════════
         const canvas = document.getElementById('three-canvas');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(SCENE_BG_COLOR);
-        scene.fog = new THREE.FogExp2(FOG_COLOR, 0.015);
+        scene.background = new THREE.Color(0x33B1D9);
+        scene.fog = new THREE.FogExp2(0x33B1D9, 0.015);
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
         camera.position.set(0, 2, 8);
@@ -604,9 +508,9 @@
         const pmremGenerator = new THREE.PMREMGenerator(renderer);
         scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
-        // ============================================
-        // ORBIT CONTROLS
-        // ============================================
+        // ═══════════════════════════════════════════════════════════════
+        // CONTROLS
+        // ═══════════════════════════════════════════════════════════════
         const controls = new OrbitControls(camera, canvas);
         controls.target.set(0, 0, 0);
         controls.enableDamping = true;
@@ -616,20 +520,17 @@
         controls.rotateSpeed = 0.8;
         controls.zoomSpeed = 1.0;
         controls.enablePan = true;
-        controls.panSpeed = 0.5;
         controls.update();
 
-        // ============================================
+        // ═══════════════════════════════════════════════════════════════
         // LIGHTING
-        // ============================================
-        const ambientLight = new THREE.AmbientLight(0xffcccc, 0.2);
-        scene.add(ambientLight);
+        // ═══════════════════════════════════════════════════════════════
+        scene.add(new THREE.AmbientLight(0xffcccc, 0.2));
 
         const keyLight = new THREE.DirectionalLight(0xfff0e0, 2.0);
         keyLight.position.set(5, 8, 5);
         keyLight.castShadow = true;
-        keyLight.shadow.mapSize.width = 2048;
-        keyLight.shadow.mapSize.height = 2048;
+        keyLight.shadow.mapSize.set(2048, 2048);
         keyLight.shadow.bias = -0.001;
         scene.add(keyLight);
 
@@ -641,101 +542,189 @@
         rimLight.position.set(0, 5, -8);
         scene.add(rimLight);
 
-        const bounceLight = new THREE.DirectionalLight(0x4444aa, 0.3);
-        bounceLight.position.set(0, -5, 2);
-        scene.add(bounceLight);
-
         const heartLight = new THREE.PointLight(0xff3333, 1.0, 10);
         heartLight.position.set(0, 0, 2);
         scene.add(heartLight);
 
-        // ============================================
+        // ═══════════════════════════════════════════════════════════════
         // GROUND
-        // ============================================
-        const planeGeometry = new THREE.PlaneGeometry(50, 50);
-        const planeMaterial = new THREE.MeshStandardMaterial({
-            color: GROUND_COLOR,
-            roughness: 0.3,
-            metalness: 0.5,
-            transparent: true,
-            opacity: GROUND_OPACITY,
-            side: THREE.DoubleSide
-        });
-        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        // ═══════════════════════════════════════════════════════════════
+        const plane = new THREE.Mesh(
+            new THREE.PlaneGeometry(50, 50),
+            new THREE.MeshStandardMaterial({ color: 0x16213e, roughness: 0.3, metalness: 0.5, transparent: true, opacity: 0.0, side: THREE.DoubleSide })
+        );
         plane.rotation.x = -Math.PI / 2;
         plane.position.y = -3;
         plane.receiveShadow = true;
         scene.add(plane);
 
-        const gridHelper = new THREE.GridHelper(20, 20, GRID_COLOR_CENTER, GRID_COLOR_LINES);
+        const gridHelper = new THREE.GridHelper(20, 20, 0x4a4a6a, 0x2a2a4a);
         gridHelper.position.y = -2.99;
         scene.add(gridHelper);
 
-        // ============================================
-        // ═══ نظام اللافتات التفاعلية - قابلة للسحب ═══
-        // ============================================
+        // ═══════════════════════════════════════════════════════════════
+        // ═══ نظام التسميات التفاعلية - مطابق للصورة ═══
+        // ═══════════════════════════════════════════════════════════════
         let labelsVisible = true;
         let labelsLocked = false;
         let heartLabels = [];
         let draggedLabel = null;
         let dragOffset = { x: 0, y: 0 };
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ تعريف أجزاء القلب ═══
-        // ═══════════════════════════════════════════════════════════════
+        // ═══ تعريف الأجزاء مطابق للصورة تماماً ═══
         const heartPartsData = [
-            { id: 'aorta', name: 'الشريان الأورطي', desc: 'Aorta', position: new THREE.Vector3(0.0, 2.0, 0.2), color: 'red', side: 'top' },
-            { id: 'pulmonary-artery', name: 'الشريان الرئوي', desc: 'Pulmonary Artery', position: new THREE.Vector3(0.5, 1.6, 0.3), color: 'blue', side: 'right' },
-            { id: 'superior-vena-cava', name: 'الوريد الأجوف العلوي', desc: 'Superior Vena Cava', position: new THREE.Vector3(-0.5, 1.6, 0.1), color: 'darkred', side: 'left' },
-            { id: 'right-atrium', name: 'الأذين الأيمن', desc: 'Right Atrium', position: new THREE.Vector3(0.7, 0.7, 0.2), color: 'blue', side: 'right' },
-            { id: 'left-atrium', name: 'الأذين الأيسر', desc: 'Left Atrium', position: new THREE.Vector3(-0.6, 0.7, 0.1), color: 'red', side: 'left' },
-            { id: 'right-ventricle', name: 'البطين الأيمن', desc: 'Right Ventricle', position: new THREE.Vector3(0.5, -0.3, 0.4), color: 'blue', side: 'right' },
-            { id: 'left-ventricle', name: 'البطين الأيسر', desc: 'Left Ventricle', position: new THREE.Vector3(-0.4, -0.3, 0.3), color: 'red', side: 'left' },
-            { id: 'left-coronary', name: 'الشريان التاجي الأيسر', desc: 'Left Coronary Artery', position: new THREE.Vector3(-0.3, 0.3, 0.6), color: 'gold', side: 'left' },
-            { id: 'right-coronary', name: 'الشريان التاجي الأيمن', desc: 'Right Coronary Artery', position: new THREE.Vector3(0.3, 0.2, 0.6), color: 'orange', side: 'right' },
-            { id: 'inferior-vena-cava', name: 'الوريد الأجوف السفلي', desc: 'Inferior Vena Cava', position: new THREE.Vector3(0.2, -1.2, 0.1), color: 'purple', side: 'right' },
-            { id: 'apex', name: 'قمة القلب', desc: 'Apex of Heart', position: new THREE.Vector3(-0.2, -1.5, 0.3), color: 'pink', side: 'bottom' }
+            // الأعلى - الشرايين
+            {
+                id: 'aorta',
+                name: 'الشريان الأورطي',
+                desc: 'Aorta',
+                position: new THREE.Vector3(0.0, 2.2, 0.3),
+                color: 'red',
+                side: 'top'
+            },
+            {
+                id: 'pulmonary-trunk',
+                name: 'الشريان الرئوي',
+                desc: 'Pulmonary Trunk',
+                position: new THREE.Vector3(0.6, 1.8, 0.4),
+                color: 'blue',
+                side: 'right'
+            },
+            {
+                id: 'superior-vena-cava',
+                name: 'الوريد الأجوف العلوي',
+                desc: 'Superior Vena Cava',
+                position: new THREE.Vector3(-0.5, 1.8, 0.2),
+                color: 'darkblue',
+                side: 'left'
+            },
+            // الأذينان
+            {
+                id: 'right-atrium',
+                name: 'الأذين الأيمن',
+                desc: 'Right Atrium',
+                position: new THREE.Vector3(0.8, 0.8, 0.3),
+                color: 'blue',
+                side: 'right'
+            },
+            {
+                id: 'left-atrium',
+                name: 'الأذين الأيسر',
+                desc: 'Left Atrium',
+                position: new THREE.Vector3(-0.7, 0.8, 0.2),
+                color: 'red',
+                side: 'left'
+            },
+            // الشرايين التاجية
+            {
+                id: 'left-coronary',
+                name: 'الشريان التاجي الأيسر',
+                desc: 'Left Coronary Artery',
+                position: new THREE.Vector3(-0.4, 0.4, 0.7),
+                color: 'gold',
+                side: 'left'
+            },
+            {
+                id: 'right-coronary',
+                name: 'الشريان التاجي الأيمن',
+                desc: 'Right Coronary Artery',
+                position: new THREE.Vector3(0.4, 0.3, 0.7),
+                color: 'orange',
+                side: 'right'
+            },
+            // البطينان
+            {
+                id: 'right-ventricle',
+                name: 'البطين الأيمن',
+                desc: 'Right Ventricle',
+                position: new THREE.Vector3(0.6, -0.4, 0.5),
+                color: 'blue',
+                side: 'right'
+            },
+            {
+                id: 'left-ventricle',
+                name: 'البطين الأيسر',
+                desc: 'Left Ventricle',
+                position: new THREE.Vector3(-0.5, -0.4, 0.4),
+                color: 'red',
+                side: 'left'
+            },
+            // الأسفل
+            {
+                id: 'inferior-vena-cava',
+                name: 'الوريد الأجوف السفلي',
+                desc: 'Inferior Vena Cava',
+                position: new THREE.Vector3(0.3, -1.3, 0.2),
+                color: 'purple',
+                side: 'right'
+            },
+            {
+                id: 'apex',
+                name: 'قمة القلب',
+                desc: 'Apex of Heart',
+                position: new THREE.Vector3(-0.3, -1.6, 0.4),
+                color: 'pink',
+                side: 'bottom'
+            }
         ];
 
         const colorMap = {
-            red: '#e74c3c', blue: '#3498db', darkred: '#c0392b', gold: '#f1c40f',
-            orange: '#e67e22', purple: '#9b59b6', teal: '#1abc9c', pink: '#e91e63'
+            red: '#e74c3c', blue: '#3498db', darkblue: '#2980b9', gold: '#f1c40f',
+            orange: '#e67e22', purple: '#9b59b6', pink: '#e91e63'
         };
 
         function getColorHex(colorName) { return colorMap[colorName] || '#ff6b6b'; }
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══ إنشاء اللافتات القابلة للسحب ═══
+        // ═══ إنشاء التسميات القابلة للسحب ═══
         // ═══════════════════════════════════════════════════════════════
         function createLabels() {
             const container = document.getElementById('labelsContainer');
-            const svg = document.getElementById('labelLinesSvg');
+            const svg = document.getElementById('labelSvgOverlay');
             container.innerHTML = '';
             svg.innerHTML = '';
             heartLabels = [];
 
             heartPartsData.forEach((part, index) => {
-                // إنشاء خط SVG
+                const colorHex = getColorHex(part.color);
+
+                // إنشاء نقطة على الجزء
+                const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                dot.setAttribute('id', `dot-${part.id}`);
+                dot.setAttribute('class', 'dot');
+                dot.setAttribute('r', '5');
+                dot.setAttribute('fill', colorHex);
+                dot.setAttribute('stroke', '#fff');
+                dot.setAttribute('stroke-width', '1.5');
+                svg.appendChild(dot);
+
+                // إنشاء خط التأشير
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                 line.setAttribute('id', `line-${part.id}`);
-                line.setAttribute('stroke', getColorHex(part.color));
+                line.setAttribute('stroke', colorHex);
                 svg.appendChild(line);
 
-                // إنشاء عنصر اللافتة
+                // إنشاء رأس السهم
+                const arrowHead = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                arrowHead.setAttribute('id', `arrow-${part.id}`);
+                arrowHead.setAttribute('class', 'arrow-head');
+                arrowHead.setAttribute('fill', colorHex);
+                svg.appendChild(arrowHead);
+
+                // إنشاء عنصر التسمية
                 const labelEl = document.createElement('div');
-                labelEl.className = `heart-label label-color-${part.color} label-${part.side}`;
+                labelEl.className = `heart-label label-color-${part.color}`;
                 labelEl.id = `label-${part.id}`;
                 labelEl.dataset.id = part.id;
                 labelEl.dataset.index = index;
                 labelEl.innerHTML = `
                     <div class="label-card">
-                        <div class="label-number" style="background:${getColorHex(part.color)}">${index + 1}</div>
-                        <div class="label-title" style="color:${getColorHex(part.color)}">${part.name}</div>
-                        <div class="label-desc">${part.desc}</div>
+                        <div class="label-number">${index + 1}</div>
+                        <div class="label-title">${part.name}</div>
                     </div>
                 `;
 
-                // ربط أحداث السحب
+                // أحداث السحب
                 labelEl.addEventListener('mousedown', onLabelMouseDown);
                 labelEl.addEventListener('touchstart', onLabelTouchStart, { passive: false });
 
@@ -745,11 +734,9 @@
                     ...part,
                     element: labelEl,
                     lineElement: line,
+                    dotElement: dot,
+                    arrowElement: arrowHead,
                     worldPosition: part.position.clone(),
-                    screenPos: new THREE.Vector2(),
-                    labelPos: new THREE.Vector2(),
-                    savedLeft: null,
-                    savedTop: null,
                     isSaved: false
                 });
             });
@@ -783,7 +770,6 @@
             const rect = el.getBoundingClientRect();
             dragOffset.x = clientX - rect.left;
             dragOffset.y = clientY - rect.top;
-            // تعطيل التحكم بالكاميرا أثناء السحب
             controls.enabled = false;
         }
 
@@ -804,7 +790,6 @@
             if (!draggedLabel) return;
             let x = clientX - dragOffset.x;
             let y = clientY - dragOffset.y;
-            // تقييد ضمن حدود الشاشة
             const el = draggedLabel.element;
             const w = el.offsetWidth;
             const h = el.offsetHeight;
@@ -812,8 +797,7 @@
             y = Math.max(0, Math.min(window.innerHeight - h, y));
             el.style.left = x + 'px';
             el.style.top = y + 'px';
-            // تحديث الخط
-            updateSingleLine(draggedLabel);
+            updateSingleArrow(draggedLabel);
         }
 
         function onLabelMouseUp(e) {
@@ -837,7 +821,7 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══ تحديث مواقع اللافتات والخطوط ═══
+        // ═══ تحديث الأسهم والخطوط ═══
         // ═══════════════════════════════════════════════════════════════
         function updateLabels() {
             if (!labelsVisible || !heartModel) return;
@@ -847,35 +831,7 @@
             camera.getWorldDirection(cameraDirection);
 
             heartLabels.forEach((label, index) => {
-                // إذا كانت مُثبَّتة، حدّث الخط فقط
-                if (label.isSaved) {
-                    tempV.copy(label.worldPosition);
-                    tempV.applyMatrix4(heartModel.matrixWorld);
-                    tempV.project(camera);
-                    const partX = (tempV.x * 0.5 + 0.5) * window.innerWidth;
-                    const partY = (-tempV.y * 0.5 + 0.5) * window.innerHeight;
-                    const toPart = tempV.clone().sub(camera.position).normalize();
-                    const dotProduct = cameraDirection.dot(toPart);
-                    const isFacing = dotProduct > 0.2;
-
-                    if (!isFacing || tempV.z > 1) {
-                        label.lineElement.classList.add('hidden');
-                        label.element.style.opacity = '0.3';
-                        return;
-                    }
-                    label.lineElement.classList.remove('hidden');
-                    label.element.style.opacity = '1';
-                    const rect = label.element.getBoundingClientRect();
-                    const labelCX = rect.left + rect.width / 2;
-                    const labelCY = rect.top + rect.height / 2;
-                    label.lineElement.setAttribute('x1', partX);
-                    label.lineElement.setAttribute('y1', partY);
-                    label.lineElement.setAttribute('x2', labelCX);
-                    label.lineElement.setAttribute('y2', labelCY);
-                    return;
-                }
-
-                // الوضع العادي: توزيع تلقائي
+                // موقع الجزء على الشاشة
                 tempV.copy(label.worldPosition);
                 tempV.applyMatrix4(heartModel.matrixWorld);
                 tempV.project(camera);
@@ -884,58 +840,58 @@
 
                 const toPart = tempV.clone().sub(camera.position).normalize();
                 const dotProduct = cameraDirection.dot(toPart);
-                const isFacingCamera = dotProduct > 0.2;
+                const isFacingCamera = dotProduct > 0.1;
 
                 if (!isFacingCamera || tempV.z > 1) {
                     label.element.classList.remove('visible');
                     label.lineElement.classList.remove('visible');
+                    label.dotElement.classList.remove('visible');
+                    label.arrowElement.classList.remove('visible');
                     return;
                 }
 
-                // إذا لم تكن تُسحب، ضعها تلقائياً
-                if (draggedLabel !== label) {
-                    const baseRadius = Math.min(window.innerWidth, window.innerHeight) * 0.32;
+                // تحديث نقطة الجزء
+                label.dotElement.setAttribute('cx', partX);
+                label.dotElement.setAttribute('cy', partY);
+                label.dotElement.classList.add('visible');
+
+                // إذا لم تكن تُسحب وغير مُثبَّتة، ضعها تلقائياً
+                if (draggedLabel !== label && !label.isSaved) {
+                    const baseRadius = Math.min(window.innerWidth, window.innerHeight) * 0.28;
                     let offsetX = 0, offsetY = 0;
                     switch(label.side) {
                         case 'left':
                             offsetX = -baseRadius;
-                            offsetY = (index % 2 === 0) ? -30 : 30;
+                            offsetY = (index % 2 === 0) ? -25 : 25;
                             break;
                         case 'right':
                             offsetX = baseRadius;
-                            offsetY = (index % 2 === 0) ? -30 : 30;
+                            offsetY = (index % 2 === 0) ? -25 : 25;
                             break;
                         case 'top':
-                            offsetX = (index % 2 === 0) ? -50 : 50;
-                            offsetY = -baseRadius * 0.7;
+                            offsetX = (index % 2 === 0) ? -40 : 40;
+                            offsetY = -baseRadius * 0.6;
                             break;
                         case 'bottom':
-                            offsetX = (index % 2 === 0) ? -50 : 50;
-                            offsetY = baseRadius * 0.7;
+                            offsetX = (index % 2 === 0) ? -40 : 40;
+                            offsetY = baseRadius * 0.6;
                             break;
                     }
                     let labelX = partX + offsetX;
                     let labelY = partY + offsetY;
-                    const padding = 100;
+                    const padding = 80;
                     labelX = Math.max(padding, Math.min(window.innerWidth - padding, labelX));
-                    labelY = Math.max(80, Math.min(window.innerHeight - 150, labelY));
+                    labelY = Math.max(70, Math.min(window.innerHeight - 120, labelY));
                     label.element.style.left = labelX + 'px';
                     label.element.style.top = labelY + 'px';
                 }
 
                 label.element.classList.add('visible');
-                label.lineElement.classList.add('visible');
-                const rect = label.element.getBoundingClientRect();
-                const labelCX = rect.left + rect.width / 2;
-                const labelCY = rect.top + rect.height / 2;
-                label.lineElement.setAttribute('x1', partX);
-                label.lineElement.setAttribute('y1', partY);
-                label.lineElement.setAttribute('x2', labelCX);
-                label.lineElement.setAttribute('y2', labelCY);
+                updateSingleArrow(label);
             });
         }
 
-        function updateSingleLine(label) {
+        function updateSingleArrow(label) {
             if (!heartModel) return;
             const tempV = new THREE.Vector3();
             tempV.copy(label.worldPosition);
@@ -943,24 +899,52 @@
             tempV.project(camera);
             const partX = (tempV.x * 0.5 + 0.5) * window.innerWidth;
             const partY = (-tempV.y * 0.5 + 0.5) * window.innerHeight;
+
             const rect = label.element.getBoundingClientRect();
             const labelCX = rect.left + rect.width / 2;
             const labelCY = rect.top + rect.height / 2;
-            label.lineElement.setAttribute('x1', partX);
-            label.lineElement.setAttribute('y1', partY);
-            label.lineElement.setAttribute('x2', labelCX);
-            label.lineElement.setAttribute('y2', labelCY);
+
+            // حساب زاوية الخط
+            const dx = partX - labelCX;
+            const dy = partY - labelCY;
+            const angle = Math.atan2(dy, dx);
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            // نقطة بداية الخط (من حافة اللافتة)
+            const labelRadius = Math.min(rect.width, rect.height) / 2;
+            const startX = labelCX + Math.cos(angle) * labelRadius;
+            const startY = labelCY + Math.sin(angle) * labelRadius;
+
+            // نقطة نهاية الخط (قبل النقطة)
+            const endX = partX - Math.cos(angle) * 8;
+            const endY = partY - Math.sin(angle) * 8;
+
+            label.lineElement.setAttribute('x1', startX);
+            label.lineElement.setAttribute('y1', startY);
+            label.lineElement.setAttribute('x2', endX);
+            label.lineElement.setAttribute('y2', endY);
+            label.lineElement.classList.add('visible');
+
+            // رأس السهم (مثلث صغير عند النقطة)
+            const arrowSize = 8;
+            const ax = partX;
+            const ay = partY;
+            const a1x = ax - arrowSize * Math.cos(angle - 0.5);
+            const a1y = ay - arrowSize * Math.sin(angle - 0.5);
+            const a2x = ax - arrowSize * Math.cos(angle + 0.5);
+            const a2y = ay - arrowSize * Math.sin(angle + 0.5);
+
+            label.arrowElement.setAttribute('points', `${ax},${ay} ${a1x},${a1y} ${a2x},${a2y}`);
+            label.arrowElement.classList.add('visible');
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // ═══ حفظ / إلغاء التثبيت / إعادة اللافتات ═══
+        // ═══ حفظ / إعادة التسميات ═══
         // ═══════════════════════════════════════════════════════════════
         window.saveLabels = function() {
             labelsLocked = true;
             heartLabels.forEach(label => {
                 label.isSaved = true;
-                label.savedLeft = label.element.style.left;
-                label.savedTop = label.element.style.top;
                 label.element.classList.add('locked');
             });
             document.getElementById('btnSave').disabled = true;
@@ -974,8 +958,6 @@
             labelsLocked = false;
             heartLabels.forEach(label => {
                 label.isSaved = false;
-                label.savedLeft = null;
-                label.savedTop = null;
                 label.element.classList.remove('locked');
             });
             document.getElementById('btnSave').disabled = false;
@@ -985,11 +967,13 @@
         window.toggleLabels = function() {
             labelsVisible = !labelsVisible;
             document.getElementById('btnLabels').classList.toggle('active');
-            const svg = document.getElementById('labelLinesSvg');
+            const svg = document.getElementById('labelSvgOverlay');
             heartLabels.forEach(label => {
                 if (!labelsVisible) {
                     label.element.style.display = 'none';
                     label.lineElement.classList.remove('visible');
+                    label.dotElement.classList.remove('visible');
+                    label.arrowElement.classList.remove('visible');
                 } else {
                     label.element.style.display = 'block';
                 }
@@ -997,9 +981,9 @@
             svg.style.display = labelsVisible ? 'block' : 'none';
         };
 
-        // ============================================
-        // LOAD 3D MODEL (GLB)
-        // ============================================
+        // ═══════════════════════════════════════════════════════════════
+        // ═══ تحميل مجسم GLB ═══
+        // ═══════════════════════════════════════════════════════════════
         let heartModel = null;
         let originalPositions = new Map();
         let explodeMode = false;
@@ -1009,19 +993,12 @@
 
         function loadModel(url) {
             return new Promise((resolve, reject) => {
-                loader.load(
-                    url,
-                    (gltf) => { resolve(gltf); },
+                loader.load(url, resolve,
                     (xhr) => {
                         if (xhr.total > 0) {
-                            const percent = Math.round((xhr.loaded / xhr.total) * 100);
-                            loadingProgress.textContent = percent + '%';
-                        } else {
-                            loadingProgress.textContent = 'جاري التحميل...';
+                            loadingProgress.textContent = Math.round((xhr.loaded / xhr.total) * 100) + '%';
                         }
-                    },
-                    (error) => { reject(error); }
-                );
+                    }, reject);
             });
         }
 
@@ -1039,18 +1016,8 @@
         }
 
         function setupModel(model) {
-            if (heartModel) {
+            if (heartModel && heartModel !== model) {
                 scene.remove(heartModel);
-                heartModel.traverse((child) => {
-                    if (child.isMesh) {
-                        child.geometry.dispose();
-                        if (Array.isArray(child.material)) {
-                            child.material.forEach(m => m.dispose());
-                        } else {
-                            child.material.dispose();
-                        }
-                    }
-                });
             }
 
             originalPositions.clear();
@@ -1062,13 +1029,6 @@
                     child.castShadow = true;
                     child.receiveShadow = true;
                     saveOriginalPosition(child);
-                    if (child.material) {
-                        if (Array.isArray(child.material)) {
-                            child.material.forEach(m => { m.needsUpdate = true; });
-                        } else {
-                            child.material.needsUpdate = true;
-                        }
-                    }
                 }
             });
 
@@ -1076,7 +1036,7 @@
             const center = box.getCenter(new THREE.Vector3());
             model.position.sub(center);
 
-            const desiredSize = 2.0;
+            const desiredSize = 2.2;
             const size = box.getSize(new THREE.Vector3());
             const maxDim = Math.max(size.x, size.y, size.z);
             const scale = desiredSize / maxDim;
@@ -1100,64 +1060,37 @@
         }
 
         function showError(msg) {
-            const loadingProgress = document.getElementById('loadingProgress');
             loadingProgress.textContent = 'فشل التحميل!';
             loadingProgress.style.color = '#ff4444';
             document.querySelector('.loading-text').textContent = msg;
         }
 
-        // ============================================
-        // PARTICLES
-        // ============================================
-        const particleCount = 300;
-        const particleGeo = new THREE.BufferGeometry();
+        // ═══════════════════════════════════════════════════════════════
+        // ═══ جسيمات ═══
+        // ═══════════════════════════════════════════════════════════════
+        const particleCount = 200;
         const pPositions = new Float32Array(particleCount * 3);
         const pColors = new Float32Array(particleCount * 3);
-
         for (let i = 0; i < particleCount; i++) {
-            pPositions[i * 3] = (Math.random() - 0.5) * 20;
-            pPositions[i * 3 + 1] = (Math.random() - 0.5) * 20;
-            pPositions[i * 3 + 2] = (Math.random() - 0.5) * 20;
+            pPositions[i*3] = (Math.random()-0.5)*20;
+            pPositions[i*3+1] = (Math.random()-0.5)*20;
+            pPositions[i*3+2] = (Math.random()-0.5)*20;
             const isRed = Math.random() > 0.3;
-            pColors[i * 3] = isRed ? 0.8 + Math.random() * 0.2 : 0.2;
-            pColors[i * 3 + 1] = isRed ? 0.1 : 0.2;
-            pColors[i * 3 + 2] = isRed ? 0.1 : 0.6 + Math.random() * 0.4;
+            pColors[i*3] = isRed ? 0.8+Math.random()*0.2 : 0.2;
+            pColors[i*3+1] = isRed ? 0.1 : 0.2;
+            pColors[i*3+2] = isRed ? 0.1 : 0.6+Math.random()*0.4;
         }
-
+        const particleGeo = new THREE.BufferGeometry();
         particleGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
         particleGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
-
-        const particleMat = new THREE.PointsMaterial({
-            size: 0.04,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.5,
-            blending: THREE.AdditiveBlending
-        });
-
-        const particles = new THREE.Points(particleGeo, particleMat);
+        const particles = new THREE.Points(particleGeo, new THREE.PointsMaterial({
+            size: 0.04, vertexColors: true, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending
+        }));
         scene.add(particles);
 
-        // ============================================
-        // ZOOM SLIDER
-        // ============================================
-        const zoomSlider = document.getElementById('zoomSlider');
-
-        zoomSlider.addEventListener('input', (e) => {
-            const dist = parseFloat(e.target.value);
-            const direction = camera.position.clone().sub(controls.target).normalize();
-            camera.position.copy(controls.target).add(direction.multiplyScalar(dist));
-            controls.update();
-        });
-
-        function updateZoomSlider() {
-            const dist = camera.position.distanceTo(controls.target);
-            zoomSlider.value = Math.min(Math.max(dist, 2), 50);
-        }
-
-        // ============================================
-        // BUTTON ACTIONS
-        // ============================================
+        // ═══════════════════════════════════════════════════════════════
+        // ═══ أزرار التحكم ═══
+        // ═══════════════════════════════════════════════════════════════
         let autoRotate = false;
         let pulseEnabled = true;
         let wireframeMode = false;
@@ -1172,9 +1105,6 @@
         window.togglePulse = function() {
             pulseEnabled = !pulseEnabled;
             document.getElementById('btnPulse').classList.toggle('active');
-            if (!pulseEnabled && heartModel) {
-                heartModel.scale.set(1, 1, 1);
-            }
         };
 
         window.toggleWireframe = function() {
@@ -1213,7 +1143,6 @@
             camera.position.set(0, 2, 8);
             controls.target.set(0, 0, 0);
             controls.update();
-            zoomSlider.value = 8;
 
             autoRotate = false;
             controls.autoRotate = false;
@@ -1231,56 +1160,46 @@
             resetLabels();
         };
 
-        // ============================================
-        // ANIMATION LOOP
-        // ============================================
+        // ═══════════════════════════════════════════════════════════════
+        // ═══ حلقة الرسوم المتحركة ═══
+        // ═══════════════════════════════════════════════════════════════
         let pulseTime = 0;
 
         function animate() {
             requestAnimationFrame(animate);
-
             const time = Date.now() * 0.001;
 
             controls.update();
 
             if (pulseEnabled && heartModel && !explodeMode) {
                 pulseTime += 0.04;
-                const pulse = 1 + Math.sin(pulseTime) * 0.04;
+                const pulse = 1 + Math.sin(pulseTime) * 0.03;
                 heartModel.scale.set(pulse, pulse, pulse);
-
-                const pulseHeight = 30 + Math.sin(pulseTime) * 30 + 20;
-                document.getElementById('pulseFill').style.height = pulseHeight + '%';
+                document.getElementById('pulseFill').style.height = (30 + Math.sin(pulseTime) * 30 + 20) + '%';
                 heartLight.intensity = 1.0 + Math.sin(pulseTime) * 0.4;
             }
 
-            // تحديث مواقع اللافتات في كل إطار
             updateLabels();
-
-            updateZoomSlider();
 
             const positions = particles.geometry.attributes.position.array;
             for (let i = 0; i < particleCount; i++) {
-                positions[i * 3 + 1] += Math.sin(time * 0.5 + i) * 0.001;
-                positions[i * 3] += Math.cos(time * 0.3 + i) * 0.0005;
+                positions[i*3+1] += Math.sin(time*0.5 + i) * 0.001;
+                positions[i*3] += Math.cos(time*0.3 + i) * 0.0005;
             }
             particles.geometry.attributes.position.needsUpdate = true;
-            particles.rotation.y += 0.0005;
 
             renderer.render(scene, camera);
         }
 
-        // ============================================
-        // RESIZE
-        // ============================================
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // ============================================
-        // INIT
-        // ============================================
+        // ═══════════════════════════════════════════════════════════════
+        // ═══ بدء التشغيل ═══
+        // ═══════════════════════════════════════════════════════════════
         initModel();
         animate();
     </script>
