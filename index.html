@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>القلب البشري 3D - تسميات ثلاثية الأبعاد</title>
+    <title>Human Heart 3D - Interactive Labels</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -54,7 +54,7 @@
             color: #ff6b6b;
             text-shadow: 0 0 20px rgba(255,107,107,0.5);
         }
-        .brand i { margin-left: 8px; }
+        .brand i { margin-right: 8px; }
 
         .info-badge {
             background: rgba(220,53,69,0.2);
@@ -126,9 +126,6 @@
             background: rgba(39,174,96,0.5) !important;
         }
 
-        /* ═══════════════════════════════════════════ */
-        /* ═══ لافتات ثلاثية الأبعاد - Sprite Labels ═══ */
-        /* ═══════════════════════════════════════════ */
         .heart-label {
             position: absolute;
             z-index: 20;
@@ -342,38 +339,36 @@
             .label-title { font-size: 0.8rem; }
         }
     </style>
-<base target="_blank">
 </head>
 <body>
     <div class="loading-screen" id="loadingScreen">
         <div class="heart-loader"></div>
-        <p class="loading-text">جاري تحميل نموذج القلب ثلاثي الأبعاد...</p>
+        <p class="loading-text">Loading 3D Heart Model...</p>
         <p class="loading-progress" id="loadingProgress">0%</p>
     </div>
 
     <canvas id="three-canvas"></canvas>
 
-    <!-- حاوية اللافتات -->
     <div id="labelsContainer" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:20;"></div>
 
     <div class="ui-layer top-bar">
         <div class="brand">
             <i class="bi bi-heart-pulse-fill"></i>
-            القلب البشري 3D
+            Human Heart 3D
         </div>
         <div class="info-badge">
             <i class="bi bi-hand-index-thumb me-1"></i>
-            اسحب اللافتات حول القلب في الفضاء الثلاثي الأبعاد
+            Drag labels around the heart in 3D space
         </div>
     </div>
 
     <div class="save-status" id="saveStatus">
         <i class="bi bi-check-circle-fill me-1"></i>
-        تم حفظ مواقع التسميات بنجاح!
+        Label positions saved successfully!
     </div>
 
     <div class="ui-layer pulse-indicator">
-        <span class="pulse-label">نبض</span>
+        <span class="pulse-label">Pulse</span>
         <div class="pulse-bar">
             <div class="pulse-fill" id="pulseFill"></div>
         </div>
@@ -383,35 +378,35 @@
         <div class="action-buttons">
             <button class="btn-action" id="btnAutoRotate" onclick="toggleAutoRotate()">
                 <i class="bi bi-arrow-clockwise"></i>
-                دوران
+                Auto Rotate
             </button>
             <button class="btn-action active" id="btnLabels" onclick="toggleLabels()">
                 <i class="bi bi-tags"></i>
-                التسميات
+                Labels
             </button>
             <button class="btn-action" id="btnPulse" onclick="togglePulse()">
                 <i class="bi bi-heart-pulse"></i>
-                نبض
+                Pulse
             </button>
             <button class="btn-action" id="btnWireframe" onclick="toggleWireframe()">
                 <i class="bi bi-grid-3x3"></i>
-                سلكي
+                Wireframe
             </button>
             <button class="btn-action" id="btnExplode" onclick="toggleExplode()">
                 <i class="bi bi-box-seam"></i>
-                تفكيك
+                Explode
             </button>
             <button class="btn-action" id="btnResetLabels" onclick="resetLabels()">
                 <i class="bi bi-arrow-counterclockwise"></i>
-                إعادة التسميات
+                Reset Labels
             </button>
             <button class="btn-action btn-save" id="btnSave" onclick="saveLabels()">
                 <i class="bi bi-save"></i>
-                حفظ المواقع
+                Save Positions
             </button>
             <button class="btn-action" id="btnReset" onclick="resetView()">
                 <i class="bi bi-arrow-counterclockwise"></i>
-                إعادة الكل
+                Reset All
             </button>
         </div>
     </div>
@@ -431,9 +426,6 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-        // ═══════════════════════════════════════════════════════════════
-        // SCENE SETUP
-        // ═══════════════════════════════════════════════════════════════
         const canvas = document.getElementById('three-canvas');
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x33B1D9);
@@ -454,9 +446,6 @@
         const pmremGenerator = new THREE.PMREMGenerator(renderer);
         scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
-        // ═══════════════════════════════════════════════════════════════
-        // CONTROLS
-        // ═══════════════════════════════════════════════════════════════
         const controls = new OrbitControls(camera, canvas);
         controls.target.set(0, 0, 0);
         controls.enableDamping = true;
@@ -468,9 +457,6 @@
         controls.enablePan = true;
         controls.update();
 
-        // ═══════════════════════════════════════════════════════════════
-        // LIGHTING
-        // ═══════════════════════════════════════════════════════════════
         scene.add(new THREE.AmbientLight(0xffcccc, 0.2));
 
         const keyLight = new THREE.DirectionalLight(0xfff0e0, 2.0);
@@ -492,9 +478,6 @@
         heartLight.position.set(0, 0, 2);
         scene.add(heartLight);
 
-        // ═══════════════════════════════════════════════════════════════
-        // GROUND
-        // ═══════════════════════════════════════════════════════════════
         const plane = new THREE.Mesh(
             new THREE.PlaneGeometry(50, 50),
             new THREE.MeshStandardMaterial({ color: 0x16213e, roughness: 0.3, metalness: 0.5, transparent: true, opacity: 0.0, side: THREE.DoubleSide })
@@ -508,43 +491,27 @@
         gridHelper.position.y = -2.99;
         scene.add(gridHelper);
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ نظام التسميات الثلاثية الأبعاد ═══
-        // ═══════════════════════════════════════════════════════════════
         let labelsVisible = true;
         let labelsLocked = false;
         let heartLabels = [];
         let draggedLabel = null;
         let isDragging = false;
         let dragStartPos = new THREE.Vector3();
-        let dragPlane = new THREE.Plane();
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
 
-        // ═══ تعريف الأجزاء - إحداثيات ثلاثية الأبعاد حول القلب ═══
         const heartPartsData = [
-            { id: 'aorta', name: 'الشريان الأورطي', color: 'red', 
-              offset: new THREE.Vector3(0.0, 2.5, 0.5) },
-            { id: 'pulmonary-trunk', name: 'الشريان الرئوي', color: 'blue',
-              offset: new THREE.Vector3(1.2, 2.0, 0.8) },
-            { id: 'superior-vena-cava', name: 'الوريد الأجوف العلوي', color: 'darkblue',
-              offset: new THREE.Vector3(-1.0, 2.0, 0.5) },
-            { id: 'right-atrium', name: 'الأذين الأيمن', color: 'blue',
-              offset: new THREE.Vector3(1.5, 0.8, 0.8) },
-            { id: 'left-atrium', name: 'الأذين الأيسر', color: 'red',
-              offset: new THREE.Vector3(-1.3, 0.8, 0.5) },
-            { id: 'left-coronary', name: 'الشريان التاجي الأيسر', color: 'gold',
-              offset: new THREE.Vector3(-0.8, 0.5, 1.5) },
-            { id: 'right-coronary', name: 'الشريان التاجي الأيمن', color: 'orange',
-              offset: new THREE.Vector3(0.8, 0.3, 1.5) },
-            { id: 'right-ventricle', name: 'البطين الأيمن', color: 'blue',
-              offset: new THREE.Vector3(1.3, -0.5, 0.8) },
-            { id: 'left-ventricle', name: 'البطين الأيسر', color: 'red',
-              offset: new THREE.Vector3(-1.1, -0.5, 0.6) },
-            { id: 'inferior-vena-cava', name: 'الوريد الأجوف السفلي', color: 'purple',
-              offset: new THREE.Vector3(0.5, -1.8, 0.5) },
-            { id: 'apex', name: 'قمة القلب', color: 'pink',
-              offset: new THREE.Vector3(-0.5, -2.2, 0.8) }
+            { id: 'aorta', name: 'Aorta', color: 'red', offset: new THREE.Vector3(0.0, 2.5, 0.5) },
+            { id: 'pulmonary-trunk', name: 'Pulmonary Trunk', color: 'blue', offset: new THREE.Vector3(1.2, 2.0, 0.8) },
+            { id: 'superior-vena-cava', name: 'Superior Vena Cava', color: 'darkblue', offset: new THREE.Vector3(-1.0, 2.0, 0.5) },
+            { id: 'right-atrium', name: 'Right Atrium', color: 'blue', offset: new THREE.Vector3(1.5, 0.8, 0.8) },
+            { id: 'left-atrium', name: 'Left Atrium', color: 'red', offset: new THREE.Vector3(-1.3, 0.8, 0.5) },
+            { id: 'left-coronary', name: 'Left Coronary Artery', color: 'gold', offset: new THREE.Vector3(-0.8, 0.5, 1.5) },
+            { id: 'right-coronary', name: 'Right Coronary Artery', color: 'orange', offset: new THREE.Vector3(0.8, 0.3, 1.5) },
+            { id: 'right-ventricle', name: 'Right Ventricle', color: 'blue', offset: new THREE.Vector3(1.3, -0.5, 0.8) },
+            { id: 'left-ventricle', name: 'Left Ventricle', color: 'red', offset: new THREE.Vector3(-1.1, -0.5, 0.6) },
+            { id: 'inferior-vena-cava', name: 'Inferior Vena Cava', color: 'purple', offset: new THREE.Vector3(0.5, -1.8, 0.5) },
+            { id: 'apex', name: 'Apex of Heart', color: 'pink', offset: new THREE.Vector3(-0.5, -2.2, 0.8) }
         ];
 
         const colorMap = {
@@ -554,9 +521,6 @@
 
         function getColorHex(colorName) { return colorMap[colorName] || '#ff6b6b'; }
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ إنشاء التسميات الثلاثية الأبعاد ═══
-        // ═══════════════════════════════════════════════════════════════
         function createLabels() {
             const container = document.getElementById('labelsContainer');
             container.innerHTML = '';
@@ -574,7 +538,6 @@
                     </div>
                 `;
 
-                // أحداث السحب
                 labelEl.addEventListener('mousedown', onLabelMouseDown);
                 labelEl.addEventListener('touchstart', onLabelTouchStart, { passive: false });
 
@@ -583,17 +546,12 @@
                 heartLabels.push({
                     ...part,
                     element: labelEl,
-                    // الموضع الثلاثي الأبعاد الحالي للتسمية
                     position3D: part.offset.clone(),
-                    // هل تم حفظ الموضع؟
                     isSaved: false
                 });
             });
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ تحويل 3D إلى شاشة ═══
-        // ═══════════════════════════════════════════════════════════════
         function worldToScreen(worldPos) {
             const tempV = worldPos.clone();
             tempV.project(camera);
@@ -604,24 +562,16 @@
             };
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ تحويل شاشة إلى 3D على مستوى معين ═══
-        // ═══════════════════════════════════════════════════════════════
         function screenToWorld(screenX, screenY, planeZ) {
             mouse.x = (screenX / window.innerWidth) * 2 - 1;
             mouse.y = -(screenY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
-
-            // إنشاء مستوى عند عمق معين
             const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -planeZ);
             const target = new THREE.Vector3();
             raycaster.ray.intersectPlane(plane, target);
             return target;
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ معالجات السحب والإفلات - في الفضاء الثلاثي الأبعاد ═══
-        // ═══════════════════════════════════════════════════════════════
         function onLabelMouseDown(e) {
             if (labelsLocked) return;
             e.preventDefault();
@@ -633,11 +583,7 @@
 
             isDragging = true;
             draggedLabel.element.classList.add('dragging');
-
-            // حفظ موضع البداية
             dragStartPos.copy(draggedLabel.position3D);
-
-            // تعطيل التحكم بالكاميرا
             controls.enabled = false;
 
             document.addEventListener('mousemove', onLabelMouseMove);
@@ -677,15 +623,9 @@
 
         function moveLabel3D(screenX, screenY) {
             if (!draggedLabel) return;
-
-            // الحصول على العمق الحالي للتسمية
             const currentDepth = draggedLabel.position3D.z;
-
-            // تحويل إحداثيات الشاشة إلى 3D على نفس العمق
             const worldPos = screenToWorld(screenX, screenY, currentDepth);
-
             if (worldPos) {
-                // تحديث الموضع الثلاثي الأبعاد
                 draggedLabel.position3D.copy(worldPos);
             }
         }
@@ -711,9 +651,6 @@
             controls.enabled = true;
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ تحديث مواقع التسميات - عرض ثلاثي الأبعاد حقيقي ═══
-        // ═══════════════════════════════════════════════════════════════
         function updateLabels() {
             if (!labelsVisible) return;
 
@@ -721,15 +658,12 @@
             camera.getWorldDirection(cameraDirection);
 
             heartLabels.forEach((label) => {
-                // تحويل الموضع الثلاثي الأبعاد إلى شاشة
                 const screen = worldToScreen(label.position3D);
 
-                // التحقق إذا كان الجزء أمام الكاميرا
                 const toLabel = label.position3D.clone().sub(camera.position).normalize();
                 const dotProduct = cameraDirection.dot(toLabel);
                 const isInFront = dotProduct > 0;
 
-                // التحقق من حدود الشاشة
                 const isOnScreen = screen.x >= -100 && screen.x <= window.innerWidth + 100 &&
                                    screen.y >= -50 && screen.y <= window.innerHeight + 50;
 
@@ -741,11 +675,8 @@
                 label.element.style.display = 'block';
                 label.element.style.left = screen.x + 'px';
                 label.element.style.top = screen.y + 'px';
-
-                // ترتيب حسب العمق (Z)
                 label.element.style.zIndex = Math.round(1000 - screen.z * 100);
 
-                // تلاشي إذا كانت خلف القلب
                 const distToCenter = label.position3D.distanceTo(new THREE.Vector3(0,0,0));
                 const heartRadius = 1.5;
 
@@ -757,9 +688,6 @@
             });
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ حفظ / إعادة التسميات ═══
-        // ═══════════════════════════════════════════════════════════════
         window.saveLabels = function() {
             labelsLocked = true;
             heartLabels.forEach(label => {
@@ -767,7 +695,7 @@
                 label.element.classList.add('locked');
             });
             document.getElementById('btnSave').disabled = true;
-            document.getElementById('btnSave').innerHTML = '<i class="bi bi-check-circle-fill"></i> تم الحفظ';
+            document.getElementById('btnSave').innerHTML = '<i class="bi bi-check-circle-fill"></i> Saved';
             const status = document.getElementById('saveStatus');
             status.classList.add('show');
             setTimeout(() => status.classList.remove('show'), 2500);
@@ -778,11 +706,10 @@
             heartLabels.forEach(label => {
                 label.isSaved = false;
                 label.element.classList.remove('locked');
-                // إعادة الموضع الأصلي
                 label.position3D.copy(label.offset);
             });
             document.getElementById('btnSave').disabled = false;
-            document.getElementById('btnSave').innerHTML = '<i class="bi bi-save"></i> حفظ المواقع';
+            document.getElementById('btnSave').innerHTML = '<i class="bi bi-save"></i> Save Positions';
         };
 
         window.toggleLabels = function() {
@@ -793,9 +720,6 @@
             });
         };
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ تحميل مجسم GLB ═══
-        // ═══════════════════════════════════════════════════════════════
         let heartModel = null;
         let originalPositions = new Map();
         let explodeMode = false;
@@ -822,8 +746,8 @@
                 createLabels();
                 hideLoading();
             } catch (error) {
-                console.error('خطأ في تحميل النموذج:', error);
-                showError('تعذر تحميل نموذج القلب. تأكد من وجود الملف في: models/heart_3d_3.glb');
+                console.error('Error loading model:', error);
+                showError('Failed to load heart model. Make sure the file exists at: models/heart_3d_3.glb');
             }
         }
 
@@ -872,14 +796,11 @@
         }
 
         function showError(msg) {
-            loadingProgress.textContent = 'فشل التحميل!';
+            loadingProgress.textContent = 'Failed to load!';
             loadingProgress.style.color = '#ff4444';
             document.querySelector('.loading-text').textContent = msg;
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ جسيمات ═══
-        // ═══════════════════════════════════════════════════════════════
         const particleCount = 200;
         const pPositions = new Float32Array(particleCount * 3);
         const pColors = new Float32Array(particleCount * 3);
@@ -900,9 +821,6 @@
         }));
         scene.add(particles);
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ أزرار التحكم ═══
-        // ═══════════════════════════════════════════════════════════════
         let autoRotate = false;
         let pulseEnabled = true;
         let wireframeMode = false;
@@ -972,9 +890,6 @@
             resetLabels();
         };
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ حلقة الرسوم المتحركة ═══
-        // ═══════════════════════════════════════════════════════════════
         let pulseTime = 0;
 
         function animate() {
@@ -991,7 +906,6 @@
                 heartLight.intensity = 1.0 + Math.sin(pulseTime) * 0.4;
             }
 
-            // تحديث مواقع التسميات في كل إطار
             updateLabels();
 
             const positions = particles.geometry.attributes.position.array;
@@ -1010,9 +924,6 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // ═══════════════════════════════════════════════════════════════
-        // ═══ بدء التشغيل ═══
-        // ═══════════════════════════════════════════════════════════════
         initModel();
         animate();
     </script>
